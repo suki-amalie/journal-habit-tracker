@@ -31,3 +31,11 @@ model HabitCompletion {
   @@unique([habitId, date])
   @@index([habitId, date])
 }
+
+model JournalEntry {
+  id        Int      @id @default(autoincrement())
+  date      DateTime @unique @db.Date
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
