@@ -1,315 +1,247 @@
+import { useEffect, useMemo, useState } from "react";
+
+import TodayHabits from "../components/TodayHabits";
+import TodayProgress from "../components/TodayProgress";
+import HabitHeatmap from "../components/HabitHeatmap";
+import { BlueInkDrop } from "../components/InkDrops";
+
 import {
-  BookOpen,
-  Check,
-  ChevronLeft,
-  ChevronRight,
-  Flame,
-  Plus,
-  PenLine,
-  Circle,
-} from "lucide-react";
+  getHabits,
+  createHabit,
+  getHabitCompletions,
+  createHabitCompletion,
+  deleteHabitCompletion,
+} from "../services/habitService";
 
-const habits = [
-  { name: "LeetCode", streak: 12 },
-  { name: "Read", streak: 5 },
-  { name: "Japanese", streak: 8 },
-  { name: "Exercise", streak: 3 },
-];
+import { getTodayDate } from "../utils/date";
+import { getCompletionCountByDate, isCompletedToday } from "../utils/habit";
 
-const journalEntries = [
-  {
-    date: "Sep 25",
-    title: "A productive day",
-    preview: "Finally got through the two pointers problem...",
-  },
-  {
-    date: "Sep 24",
-    title: "Learning something new",
-    preview: "Spent some time working on the journal app...",
-  },
-  {
-    date: "Sep 23",
-    title: "Small progress",
-    preview: "Didn't get everything done today, but that's okay.",
-  },
-];
+import type { Habit, HabitCompletion } from "../types/habit";
+import AddHabitModal from "../components/AddHabitModal";
 
-// Generate deterministic heatmap data.
-// 0 = no activity, 1-4 = increasing activity.
-const heatmap = Array.from({ length: 365 }, (_, i) => {
-  const pattern = [0, 1, 0, 2, 1, 0, 3, 1, 0, 2, 4, 1, 0];
-  return pattern[i % pattern.length];
-});
+
+type CompletionsByHabit = Record<number, HabitCompletion[]>;
+
+function getGreeting(hour: number): string {
+  if (hour < 12) return "Good morning";
+  if (hour < 18) return "Good afternoon";
+  return "Good evening";
+}
 
 function Dashboard() {
-  return (
-    <div className="min-h-screen bg-[#f8f9fa] text-[#24292f]">
-      {/* Header */}
-      <header className="border-b border-[#d0d7de] bg-white">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
-          <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#24292f] text-white">
-              <BookOpen size={19} />
-            </div>
+  const [habits, setHabits] = useState<Habit[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [completions, setCompletions] = useState<CompletionsByHabit>({});
+  const [error, setError] = useState<string | null>(null);
+  const [showAddHabitModal, setShowAddHabitModal] = useState(false);
 
-            <span className="text-lg font-semibold tracking-tight">
-              Daily
-            </span>
-          </div>
+  const now = new Date();
+  const today = getTodayDate();
 
-          <nav className="flex items-center gap-6 text-sm">
-            <a href="/" className="font-medium text-[#24292f]">
-              Dashboard
-            </a>
-            <a
-              href="/journal"
-              className="text-[#57606a] transition hover:text-[#24292f]"
-            >
-              Journal
-            </a>
-          </nav>
-        </div>
-      </header>
+  const greeting = getGreeting(now.getHours());
 
-      <main className="mx-auto max-w-7xl px-6 py-10">
-        {/* Greeting */}
-        <section className="mb-10 flex items-end justify-between">
-          <div>
-            <p className="mb-2 text-sm font-medium text-[#57606a]">
-              Saturday, September 26, 2026
-            </p>
+  const dateLabel = now.toLocaleDateString("en-US", {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  });
 
-            <h1 className="text-3xl font-semibold tracking-tight">
-              Good evening 👋
-            </h1>
+  // Load habits
+  useEffect(() => {
+    async function loadHabits() {
+      try {
+        const data = await getHabits();
+        setHabits(data);
+      } catch {
+        setError("Couldn't load your habits. Try refreshing.");
+      } finally {
+        setLoading(false);
+      }
+    }
 
-            <p className="mt-2 text-[#57606a]">
-              Take a moment to reflect on your day.
-            </p>
-          </div>
+    loadHabits();
+  }, []);
 
-          <button className="flex items-center gap-2 rounded-lg bg-[#24292f] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#424a53]">
-            <PenLine size={16} />
-            Write today
-          </button>
-        </section>
+  // Load completions for every habit.
+  useEffect(() => {
+    let cancelled = false;
 
-        {/* Habit heatmap */}
-        <section className="rounded-xl border border-[#d0d7de] bg-white p-6">
-          <div className="mb-6 flex items-center justify-between">
-            <div>
-              <h2 className="text-lg font-semibold">Habit activity</h2>
-              <p className="mt-1 text-sm text-[#57606a]">
-                Your consistency over the past year
-              </p>
-            </div>
+    async function loadCompletions() {
+      try {
+        const results = await Promise.all(
+          habits.map((habit) => getHabitCompletions(habit.id)),
+        );
 
-            <div className="flex items-center gap-1">
-              <button className="rounded-md p-1.5 text-[#57606a] hover:bg-[#f6f8fa]">
-                <ChevronLeft size={18} />
-              </button>
+        if (cancelled) return;
 
-              <span className="px-2 text-sm font-medium">2026</span>
+        setCompletions(
+          Object.fromEntries(
+            habits.map((habit, index) => [habit.id, results[index]]),
+          ),
+        );
 
-              <button className="rounded-md p-1.5 text-[#57606a] hover:bg-[#f6f8fa]">
-                <ChevronRight size={18} />
-              </button>
-            </div>
-          </div>
+        setError(null);
+      } catch {
+        if (!cancelled) {
+          setError("Couldn't load your habits. Try refreshing.");
+        }
+      }
+    }
 
-          {/* Heatmap */}
-          <div className="overflow-x-auto">
-            <div className="min-w-[850px]">
-              <div className="mb-2 ml-8 flex justify-between text-xs text-[#57606a]">
-                <span>Jan</span>
-                <span>Feb</span>
-                <span>Mar</span>
-                <span>Apr</span>
-                <span>May</span>
-                <span>Jun</span>
-                <span>Jul</span>
-                <span>Aug</span>
-                <span>Sep</span>
-                <span>Oct</span>
-                <span>Nov</span>
-                <span>Dec</span>
-              </div>
+    loadCompletions();
 
-              <div className="flex gap-1">
-                {/* Weekday labels */}
-                <div className="flex w-7 flex-col justify-between py-0.5 text-[10px] text-[#57606a]">
-                  <span>Mon</span>
-                  <span>Wed</span>
-                  <span>Fri</span>
-                </div>
+    return () => {
+      cancelled = true;
+    };
+  }, [habits]);
 
-                {/* Columns */}
-                <div className="flex gap-1">
-                  {Array.from({ length: 53 }, (_, week) => (
-                    <div key={week} className="flex flex-col gap-1">
-                      {Array.from({ length: 7 }, (_, day) => {
-                        const value = heatmap[week * 7 + day] ?? 0;
+  // Derived data.
+  const completionsByDate = useMemo(
+    () => getCompletionCountByDate(completions),
+    [completions],
+  );
 
-                        const intensity = [
-                          "bg-[#ebedf0]",
-                          "bg-[#9be9a8]",
-                          "bg-[#40c463]",
-                          "bg-[#30a14e]",
-                          "bg-[#216e39]",
-                        ][value];
+  // Archived habits are hidden from today's list,
+  // but their historical completions remain available
+  // for the heatmap.
+  const activeHabits = useMemo(
+    () => habits.filter((habit) => habit.archivedAt === null),
+    [habits],
+  );
 
-                        return (
-                          <div
-                            key={day}
-                            title={`${value} habit completions`}
-                            className={`h-3 w-3 rounded-[2px] ${intensity}`}
-                          />
-                        );
-                      })}
-                    </div>
-                  ))}
-                </div>
-              </div>
+  const completedHabitIds = useMemo(
+    () =>
+      new Set(
+        activeHabits
+          .filter((habit) => isCompletedToday(habit.id, completions, today))
+          .map((habit) => habit.id),
+      ),
+    [activeHabits, completions, today],
+  );
 
-              <div className="mt-4 flex items-center justify-end gap-2 text-xs text-[#57606a]">
-                <span>Less</span>
-                <span className="h-3 w-3 rounded-[2px] bg-[#ebedf0]" />
-                <span className="h-3 w-3 rounded-[2px] bg-[#9be9a8]" />
-                <span className="h-3 w-3 rounded-[2px] bg-[#40c463]" />
-                <span className="h-3 w-3 rounded-[2px] bg-[#30a14e]" />
-                <span className="h-3 w-3 rounded-[2px] bg-[#216e39]" />
-                <span>More</span>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Today's habits + stats */}
-        <section className="mt-6 grid gap-6 lg:grid-cols-3">
-          {/* Today's habits */}
-          <div className="lg:col-span-2 rounded-xl border border-[#d0d7de] bg-white p-6">
-            <div className="mb-5 flex items-center justify-between">
-              <div>
-                <h2 className="text-lg font-semibold">Today's habits</h2>
-                <p className="mt-1 text-sm text-[#57606a]">
-                  Saturday, September 26
-                </p>
-              </div>
-
-              <button className="flex items-center gap-1.5 rounded-md border border-[#d0d7de] px-3 py-1.5 text-sm font-medium hover:bg-[#f6f8fa]">
-                <Plus size={15} />
-                Add habit
-              </button>
-            </div>
-
-            <div className="divide-y divide-[#d8dee4]">
-              {habits.map((habit, index) => {
-                const completed = index !== 2;
-
-                return (
-                  <div
-                    key={habit.name}
-                    className="flex items-center justify-between py-4 first:pt-0 last:pb-0"
-                  >
-                    <div className="flex items-center gap-3">
-                      <button
-                        className={`flex h-6 w-6 items-center justify-center rounded-full border transition ${
-                          completed
-                            ? "border-[#216e39] bg-[#216e39] text-white"
-                            : "border-[#8c959f] text-transparent hover:border-[#57606a]"
-                        }`}
-                      >
-                        {completed ? (
-                          <Check size={14} strokeWidth={3} />
-                        ) : (
-                          <Circle size={14} />
-                        )}
-                      </button>
-
-                      <span
-                        className={`text-sm font-medium ${
-                          completed ? "text-[#57606a] line-through" : ""
-                        }`}
-                      >
-                        {habit.name}
-                      </span>
-                    </div>
-
-                    <div className="flex items-center gap-1.5 text-sm text-[#57606a]">
-                      <Flame size={15} />
-                      {habit.streak} day streak
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Stats */}
-          <div className="rounded-xl border border-[#d0d7de] bg-white p-6">
-            <h2 className="text-lg font-semibold">Your progress</h2>
-
-            <div className="mt-6 space-y-6">
-              <div>
-                <p className="text-sm text-[#57606a]">Current streak</p>
-                <p className="mt-1 text-3xl font-semibold">12 days</p>
-              </div>
-
-              <div>
-                <p className="text-sm text-[#57606a]">Best streak</p>
-                <p className="mt-1 text-3xl font-semibold">24 days</p>
-              </div>
-
-              <div>
-                <p className="text-sm text-[#57606a]">This year</p>
-                <p className="mt-1 text-3xl font-semibold">183</p>
-                <p className="mt-1 text-sm text-[#57606a]">
-                  habit completions
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Journal */}
-        <section className="mt-6 rounded-xl border border-[#d0d7de] bg-white p-6">
-          <div className="mb-5 flex items-center justify-between">
-            <div>
-              <h2 className="text-lg font-semibold">Recent journal entries</h2>
-              <p className="mt-1 text-sm text-[#57606a]">
-                Your latest reflections
-              </p>
-            </div>
-
-            <a
-              href="/journal"
-              className="text-sm font-medium text-[#0969da] hover:underline"
-            >
-              View all
-            </a>
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-3">
-            {journalEntries.map((entry) => (
-              <article
-                key={entry.date}
-                className="rounded-lg border border-[#d8dee4] p-4 transition hover:border-[#8c959f] hover:shadow-sm"
-              >
-                <p className="text-xs font-medium text-[#57606a]">
-                  {entry.date}
-                </p>
-
-                <h3 className="mt-2 font-semibold">{entry.title}</h3>
-
-                <p className="mt-2 line-clamp-2 text-sm leading-6 text-[#57606a]">
-                  {entry.preview}
-                </p>
-              </article>
-            ))}
-          </div>
-        </section>
+  if (loading) {
+    return (
+      <main className="mx-auto max-w-7xl px-4 py-16 sm:px-6">
+        <p className="text-sm text-[#716d63]">Opening your journal...</p>
       </main>
-    </div>
+    );
+  }
+
+  async function handleToggle(habit: Habit) {
+    const completed = isCompletedToday(habit.id, completions, today);
+
+    try {
+      if (completed) {
+        await deleteHabitCompletion(habit.id, today);
+
+        setCompletions((previous) => ({
+          ...previous,
+          [habit.id]: (previous[habit.id] ?? []).filter(
+            (completion) => completion.date.slice(0, 10) !== today,
+          ),
+        }));
+      } else {
+        const created = await createHabitCompletion(habit.id, today);
+
+        setCompletions((previous) => ({
+          ...previous,
+          [habit.id]: [...(previous[habit.id] ?? []), created],
+        }));
+      }
+
+      setError(null);
+    } catch {
+      setError("Couldn't update that habit. Try again.");
+    }
+  }
+
+  async function handleAddHabit(
+    name: string,
+    description: string | null,
+  ) {
+    try {
+      const habit = await createHabit(name, description);
+
+      setHabits((current) => [...current, habit]);
+      setShowAddHabitModal(false);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  return (
+    <main>
+      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16">
+        {/* Today's page */}
+        <section className="mb-14">
+          <p className="font-handwriting text-xl text-[#716d63]">{dateLabel}</p>
+
+          <div className="mt-2 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <h1 className="font-serif text-4xl leading-tight text-[#292824] sm:text-5xl">
+                {greeting}.
+              </h1>
+
+              <p className="mt-4 max-w-md text-sm leading-6 text-[#716d63] sm:text-base">
+                Take a moment to reflect on your day.
+              </p>
+            </div>
+
+            <button
+              type="button"
+              className="group flex items-center gap-3 self-start text-[#6B8FC4] sm:self-auto"
+            >
+              <BlueInkDrop
+                size={21}
+                className="transition-transform group-hover:scale-110"
+              />
+
+              <span className="font-handwriting text-6xl underline decoration-[#6B8FC4]/40 decoration-2 underline-offset-4 transition-colors group-hover:decoration-[#6B8FC4] sm:text-2xl">
+                Write today
+              </span>
+            </button>
+          </div>
+        </section>
+
+        {/* Error */}
+        {error && (
+          <p
+            role="alert"
+            className="mb-8 rounded-md border border-[#d8b8b3] bg-[#fbf5f3] px-4 py-3 text-sm text-[#76534d]"
+          >
+            {error}
+          </p>
+        )}
+
+        {/* Today's habits and progress */}
+        <section className="grid gap-6 lg:grid-cols-3">
+          <TodayHabits
+            habits={activeHabits}
+            completedHabitIds={completedHabitIds}
+            onToggle={handleToggle}
+            onAddHabit={() => setShowAddHabitModal(true)}
+          />
+
+          <TodayProgress
+            done={completedHabitIds.size}
+            total={activeHabits.length}
+          />
+        </section>
+
+        {/* Yearly record */}
+        <section className="mt-12">
+          <HabitHeatmap completionsByDate={completionsByDate} />
+        </section>
+      </div>
+
+      {showAddHabitModal && (
+        <AddHabitModal
+          onClose={() => setShowAddHabitModal(false)}
+          onAdd={handleAddHabit}
+        />
+      )}
+    </main>
   );
 }
 
