@@ -1,5 +1,6 @@
 import { Outlet } from "react-router-dom";
 import AppHeader from "../components/AppHeader";
+import ErrorBoundary from "../components/ErrorBoundary";
 
 function AppLayout() {
   return (
@@ -8,7 +9,9 @@ function AppLayout() {
         <AppHeader />
 
         <main className="min-h-screen bg-[#f7f3ea]">
-          <Outlet />
+          <ErrorBoundary>
+            <Outlet />
+          </ErrorBoundary>
         </main>
       </div>
     </div>

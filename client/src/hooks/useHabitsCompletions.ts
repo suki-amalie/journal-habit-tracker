@@ -14,6 +14,7 @@ import { isCompletedToday } from "../utils/habit";
 interface HabitCompletions {
   completions: Record<number, HabitCompletion[]>;
   completedHabitIds: Set<number>;
+  error: string | null;
   toggleHabit: (habit: Habit) => Promise<void>;
 }
 
@@ -23,6 +24,7 @@ export function useHabitCompletions(
   const [completions, setCompletions] = useState<
     Record<number, HabitCompletion[]>
   >({});
+  const [error, setError] = useState<string | null>(null);
 
   const today = getTodayDate();
 
@@ -38,8 +40,9 @@ export function useHabitCompletions(
         }
 
         setCompletions(completionMap);
-      } catch (error) {
-        console.error("Failed to load habit completions:", error);
+        setError(null);
+      } catch {
+        setError("Couldn't load your habits. Try refreshing.");
       }
     }
 
@@ -80,8 +83,10 @@ export function useHabitCompletions(
           ],
         }));
       }
-    } catch (error) {
-      console.error("Failed to toggle habit:", error);
+
+      setError(null);
+    } catch {
+      setError("Couldn't update that habit. Try again.");
     }
   }
 
@@ -96,6 +101,7 @@ export function useHabitCompletions(
   return {
     completions,
     completedHabitIds,
+    error,
     toggleHabit,
   };
 }

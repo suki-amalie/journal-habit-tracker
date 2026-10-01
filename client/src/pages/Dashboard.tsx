@@ -1,26 +1,17 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
 import TodayHabits from "../components/TodayHabits";
 import TodayProgress from "../components/TodayProgress";
 import HabitHeatmap from "../components/HabitHeatmap";
 import { BlueInkDrop } from "../components/InkDrops";
 
-import {
-  getHabits,
-  createHabit,
-  getAllHabitCompletions,
-  createHabitCompletion,
-  deleteHabitCompletion,
-} from "../services/habitService";
+import { useHabits } from "../hooks/useHabits";
+import { useHabitCompletions } from "../hooks/useHabitsCompletions";
 
 import { getTodayDate } from "../utils/date";
 import { getCompletionCountByDate, isCompletedToday } from "../utils/habit";
 
-import type { Habit, HabitCompletion } from "../types/habit";
 import AddHabitModal from "../components/AddHabitModal";
-
-
-type CompletionsByHabit = Record<number, HabitCompletion[]>;
 
 function getGreeting(hour: number): string {
   if (hour < 12) return "Good morning";
@@ -29,11 +20,15 @@ function getGreeting(hour: number): string {
 }
 
 function Dashboard() {
-  const [habits, setHabits] = useState<Habit[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [completions, setCompletions] = useState<CompletionsByHabit>({});
-  const [error, setError] = useState<string | null>(null);
+  const { habits, loading, error: habitsError, addHabit } = useHabits();
+  const {
+    completions,
+    error: completionsError,
+    toggleHabit,
+  } = useHabitCompletions(habits);
   const [showAddHabitModal, setShowAddHabitModal] = useState(false);
+
+  const error = completionsError ?? habitsError;
 
   const now = new Date();
   const today = getTodayDate();
@@ -46,54 +41,6 @@ function Dashboard() {
     day: "numeric",
     year: "numeric",
   });
-
-  // Load habits
-  useEffect(() => {
-    async function loadHabits() {
-      try {
-        const data = await getHabits();
-        setHabits(data);
-      } catch {
-        setError("Couldn't load your habits. Try refreshing.");
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    loadHabits();
-  }, []);
-
-  // Load completions for all habits in a single request.
-  useEffect(() => {
-    let cancelled = false;
-
-    async function loadCompletions() {
-      try {
-        const completionList = await getAllHabitCompletions();
-
-        if (cancelled) return;
-
-        const grouped: CompletionsByHabit = {};
-
-        for (const completion of completionList) {
-          (grouped[completion.habitId] ??= []).push(completion);
-        }
-
-        setCompletions(grouped);
-        setError(null);
-      } catch {
-        if (!cancelled) {
-          setError("Couldn't load your habits. Try refreshing.");
-        }
-      }
-    }
-
-    loadCompletions();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [habits]);
 
   // Derived data.
   const completionsByDate = useMemo(
@@ -127,46 +74,12 @@ function Dashboard() {
     );
   }
 
-  async function handleToggle(habit: Habit) {
-    const completed = isCompletedToday(habit.id, completions, today);
-
-    try {
-      if (completed) {
-        await deleteHabitCompletion(habit.id, today);
-
-        setCompletions((previous) => ({
-          ...previous,
-          [habit.id]: (previous[habit.id] ?? []).filter(
-            (completion) => completion.date.slice(0, 10) !== today,
-          ),
-        }));
-      } else {
-        const created = await createHabitCompletion(habit.id, today);
-
-        setCompletions((previous) => ({
-          ...previous,
-          [habit.id]: [...(previous[habit.id] ?? []), created],
-        }));
-      }
-
-      setError(null);
-    } catch {
-      setError("Couldn't update that habit. Try again.");
-    }
-  }
-
   async function handleAddHabit(
     name: string,
     description: string | null,
   ) {
-    try {
-      const habit = await createHabit(name, description);
-
-      setHabits((current) => [...current, habit]);
-      setShowAddHabitModal(false);
-    } catch (error) {
-      console.error(error);
-    }
+    await addHabit(name, description);
+    setShowAddHabitModal(false);
   }
 
   return (
@@ -218,7 +131,7 @@ function Dashboard() {
           <TodayHabits
             habits={activeHabits}
             completedHabitIds={completedHabitIds}
-            onToggle={handleToggle}
+            onToggle={toggleHabit}
             onAddHabit={() => setShowAddHabitModal(true)}
           />
 
