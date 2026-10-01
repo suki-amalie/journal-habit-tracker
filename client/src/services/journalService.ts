@@ -1,4 +1,4 @@
-import { apiClient } from "./apiClient";
+import { apiClient, ApiError } from "./apiClient";
 import type { JournalEntry } from "../types/journal";
 
 export async function getJournalDates(): Promise<string[]> {
@@ -9,8 +9,15 @@ export async function getJournalDates(): Promise<string[]> {
 export async function getJournalEntry(
   date: string,
 ): Promise<JournalEntry | null> {
-  const response = await apiClient(`/journal/${date}`);
-  return response.json();
+  try {
+    const response = await apiClient(`/journal/${date}`);
+    return response.json();
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 404) {
+      return null;
+    }
+    throw error;
+  }
 }
 
 export async function createJournalEntry(

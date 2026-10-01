@@ -7,7 +7,7 @@ export function getUserTimeZone(): string {
 
 export function getTodayDate(): string {
   const timeZone = getUserTimeZone();
-
+  
   return new Intl.DateTimeFormat("en-CA", {
     timeZone,
     year: "numeric",

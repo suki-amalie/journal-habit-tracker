@@ -1,13 +1,12 @@
 import type { Request, Response } from "express";
 import { prisma } from "../lib/prisma.js";
-import type { AnyARecord } from "node:dns";
 
 export async function getJournalDates(
   req: Request,
   res: Response,
 ) {
   try {
-    const entries = await (prisma as any).journalEntry.findMany({
+    const entries = await prisma.journalEntry.findMany({
       select: {
         date: true,
       },
@@ -34,7 +33,7 @@ export async function getJournalEntry(
   try {
     const { date } = req.params;
 
-    const entry = await (prisma as any).journalEntry.findUnique({
+    const entry = await prisma.journalEntry.findUnique({
       where: {
         date: new Date(`${date}T00:00:00.000Z`),
       },
@@ -80,7 +79,7 @@ export async function createJournalEntry(
       });
     }
 
-    const entry = await (prisma as any).journalEntry.create({
+    const entry = await prisma.journalEntry.create({
       data: {
         date: new Date(`${date}T00:00:00.000Z`),
         content,
@@ -116,7 +115,7 @@ export async function updateJournalEntry(
       });
     }
 
-    const entry = await (prisma as any).journalEntry.update({
+    const entry = await prisma.journalEntry.update({
       where: {
         date: new Date(`${date}T00:00:00.000Z`),
       },

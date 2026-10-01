@@ -5,9 +5,10 @@ import journalRoutes from "./routes/journalRoutes.js";
 import habitRoutes from "./routes/habitRoutes.js";
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT ?? 3000;
+const CLIENT_URL = process.env.CLIENT_URL ?? "http://localhost:5173";
 
-app.use(cors());
+app.use(cors({ origin: CLIENT_URL }));
 app.use(express.json());
 app.use("/api/journal", journalRoutes);
 app.use("/api/habits", habitRoutes);
