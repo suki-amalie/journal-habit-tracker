@@ -8,7 +8,7 @@ import { BlueInkDrop } from "../components/InkDrops";
 import {
   getHabits,
   createHabit,
-  getHabitCompletions,
+  getAllHabitCompletions,
   createHabitCompletion,
   deleteHabitCompletion,
 } from "../services/habitService";
@@ -63,24 +63,23 @@ function Dashboard() {
     loadHabits();
   }, []);
 
-  // Load completions for every habit.
+  // Load completions for all habits in a single request.
   useEffect(() => {
     let cancelled = false;
 
     async function loadCompletions() {
       try {
-        const results = await Promise.all(
-          habits.map((habit) => getHabitCompletions(habit.id)),
-        );
+        const completionList = await getAllHabitCompletions();
 
         if (cancelled) return;
 
-        setCompletions(
-          Object.fromEntries(
-            habits.map((habit, index) => [habit.id, results[index]]),
-          ),
-        );
+        const grouped: CompletionsByHabit = {};
 
+        for (const completion of completionList) {
+          (grouped[completion.habitId] ??= []).push(completion);
+        }
+
+        setCompletions(grouped);
         setError(null);
       } catch {
         if (!cancelled) {

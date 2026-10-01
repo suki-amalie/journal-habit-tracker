@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 import {
-  getHabitCompletions,
+  getAllHabitCompletions,
   createHabitCompletion,
   deleteHabitCompletion,
 } from "../services/habitService";
@@ -29,21 +29,12 @@ export function useHabitCompletions(
   useEffect(() => {
     async function loadCompletions() {
       try {
-        const results = await Promise.all(
-          habits.map(async (habit) => {
-            const data = await getHabitCompletions(habit.id);
-
-            return {
-              habitId: habit.id,
-              completions: data,
-            };
-          }),
-        );
+        const completionList = await getAllHabitCompletions();
 
         const completionMap: Record<number, HabitCompletion[]> = {};
 
-        for (const result of results) {
-          completionMap[result.habitId] = result.completions;
+        for (const completion of completionList) {
+          (completionMap[completion.habitId] ??= []).push(completion);
         }
 
         setCompletions(completionMap);

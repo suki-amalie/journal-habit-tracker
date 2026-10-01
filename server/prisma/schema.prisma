@@ -13,8 +13,8 @@ datasource db {
 
 model Habit {
   id          Int                @id @default(autoincrement())
-  name        String
-  description String?
+  name        String             @db.VarChar(100)
+  description String?            @db.VarChar(500)
   createdAt   DateTime           @default(now())
   archivedAt  DateTime?
 

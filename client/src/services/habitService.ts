@@ -33,6 +33,22 @@ export async function getHabitCompletions(
   return response.json();
 }
 
+export async function getAllHabitCompletions(
+  range?: { from?: string; to?: string },
+): Promise<HabitCompletion[]> {
+  const params = new URLSearchParams();
+
+  if (range?.from) params.set("from", range.from);
+  if (range?.to) params.set("to", range.to);
+
+  const query = params.toString();
+  const response = await apiClient(
+    `/habits/completions${query ? `?${query}` : ""}`
+  );
+
+  return response.json();
+}
+
 export async function createHabitCompletion(
     habitId:number,
     date: string

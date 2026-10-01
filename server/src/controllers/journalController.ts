@@ -1,5 +1,11 @@
 import type { Request, Response } from "express";
 import { prisma } from "../lib/prisma.js";
+import {
+  createJournalEntrySchema,
+  updateJournalEntrySchema,
+  dateStringSchema,
+  formatZodError,
+} from "../validation/schemas.js";
 
 export async function getJournalDates(
   req: Request,
@@ -33,6 +39,14 @@ export async function getJournalEntry(
   try {
     const { date } = req.params;
 
+    const dateParsed = dateStringSchema.safeParse(date);
+
+    if (!dateParsed.success) {
+      return res.status(400).json({
+        error: formatZodError(dateParsed.error),
+      });
+    }
+
     const entry = await prisma.journalEntry.findUnique({
       where: {
         date: new Date(`${date}T00:00:00.000Z`),
@@ -59,25 +73,15 @@ export async function createJournalEntry(
   res: Response,
 ) {
   try {
-    const { date, content } = req.body;
+    const parsed = createJournalEntrySchema.safeParse(req.body);
 
-    if (typeof date !== "string") {
+    if (!parsed.success) {
       return res.status(400).json({
-        error: "Date is required",
+        error: formatZodError(parsed.error),
       });
     }
 
-    if (typeof content !== "string") {
-      return res.status(400).json({
-        error: "Content is required",
-      });
-    }
-
-    if (content.trim().length === 0) {
-      return res.status(400).json({
-        error: "Content cannot be empty",
-      });
-    }
+    const { date, content } = parsed.data;
 
     const entry = await prisma.journalEntry.create({
       data: {
@@ -101,19 +105,24 @@ export async function updateJournalEntry(
 ) {
   try {
     const { date } = req.params;
-    const { content } = req.body;
 
-    if (typeof content !== "string") {
+    const dateParsed = dateStringSchema.safeParse(date);
+
+    if (!dateParsed.success) {
       return res.status(400).json({
-        error: "Content is required",
+        error: formatZodError(dateParsed.error),
       });
     }
 
-    if (content.trim().length === 0) {
+    const parsed = updateJournalEntrySchema.safeParse(req.body);
+
+    if (!parsed.success) {
       return res.status(400).json({
-        error: "Content cannot be empty",
+        error: formatZodError(parsed.error),
       });
     }
+
+    const { content } = parsed.data;
 
     const entry = await prisma.journalEntry.update({
       where: {

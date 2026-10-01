@@ -1,5 +1,11 @@
 import type { Request, Response } from "express";
 import { prisma } from "../lib/prisma.js";
+import {
+  createHabitSchema,
+  createHabitCompletionSchema,
+  habitCompletionsQuerySchema,
+  formatZodError,
+} from "../validation/schemas.js";
 
 // GET /api/habits
 export async function getHabits(
@@ -32,18 +38,20 @@ export async function createHabit(
   res: Response,
 ) {
   try {
-    const { name, description } = req.body;
+    const parsed = createHabitSchema.safeParse(req.body);
 
-    if (!name || typeof name !== "string") {
+    if (!parsed.success) {
       return res.status(400).json({
-        error: "Habit name is invalid",
+        error: formatZodError(parsed.error),
       });
     }
+
+    const { name, description } = parsed.data;
 
     const habit = await prisma.habit.create({
       data: {
         name,
-        description,
+        description: description ?? null,
       },
     });
 
@@ -64,7 +72,6 @@ export async function createHabitCompletion(
 ) {
   try {
     const habitId = Number(req.params.id);
-    const { date } = req.body;
 
     if (!Number.isInteger(habitId)) {
       return res.status(400).json({
@@ -72,19 +79,15 @@ export async function createHabitCompletion(
       });
     }
 
-    if (!date || typeof date !== "string") {
+    const parsed = createHabitCompletionSchema.safeParse(req.body);
+
+    if (!parsed.success) {
       return res.status(400).json({
-        error: "Date is required",
+        error: formatZodError(parsed.error),
       });
     }
 
-    const parsedDate = new Date(`${date}T00:00:00.000Z`);
-
-    if (Number.isNaN(parsedDate.getTime())) {
-      return res.status(400).json({
-        error: "Invalid date",
-      });
-    }
+    const parsedDate = new Date(`${parsed.data.date}T00:00:00.000Z`);
 
     const today = new Date();
     today.setUTCHours(0, 0, 0, 0);
@@ -186,6 +189,49 @@ export async function getHabitCompletions(
       where: {
         habitId,
       },
+      orderBy: {
+        date: "asc",
+      },
+    });
+
+    res.json(completions);
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      error: "Failed to fetch completions",
+    });
+  }
+}
+
+// GET /api/habits/completions?from=&to=
+export async function getAllHabitCompletions(
+  req: Request,
+  res: Response,
+) {
+  try {
+    const parsed = habitCompletionsQuerySchema.safeParse(req.query);
+
+    if (!parsed.success) {
+      return res.status(400).json({
+        error: formatZodError(parsed.error),
+      });
+    }
+
+    const { from, to } = parsed.data;
+
+    const dateFilter: { gte?: Date; lte?: Date } = {};
+
+    if (from) {
+      dateFilter.gte = new Date(`${from}T00:00:00.000Z`);
+    }
+
+    if (to) {
+      dateFilter.lte = new Date(`${to}T00:00:00.000Z`);
+    }
+
+    const completions = await prisma.habitCompletion.findMany({
+      where: Object.keys(dateFilter).length > 0 ? { date: dateFilter } : {},
       orderBy: {
         date: "asc",
       },
