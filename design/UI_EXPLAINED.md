@@ -16,7 +16,7 @@ The app's aesthetic is a **warm, handwritten journal with watercolor ink accents
 - **Three handwriting-adjacent fonts** are mixed deliberately (serif for headings, handwriting font for playful accents, sans-serif for body/UI text) — see [§3](#3-typography).
 
 
-Keep this mood in mind: **soft, warm, ink-and-paper**, not corporate/clinical.
+Keep this mood in mind: **soft, warm, ink-and-paper**
 
 ---
 
@@ -144,15 +144,11 @@ Stick to Tailwind's default spacing scale (multiples of 4px: `gap-1`, `gap-2`, `
 
 ## 5. The Ink Drop Motif
 
-The watercolor "ink drop" is the app's signature visual flourish — a hand-drawn-looking blob made of layered SVG paths with an SVG turbulence/displacement filter to fake a watercolor bleed effect (see [`InkDrops.tsx`](../client/src/components/InkDrops.tsx)).
+The watercolor "ink drop" is the app's signature visual - a hand-drawn-looking blob made of layered SVG paths with an SVG turbulence/displacement filter to fake a watercolor bleed effect (see [`InkDrops.tsx`](../client/src/components/InkDrops.tsx)).
 
 - **`InkDrop`**: the base component. Takes a `color`, `size`, and `variant` (1–3, each a slightly different blob shape).
 - **`InkDropGroup`**: renders all three brand colors together (blue, green, pink) — used next to the logo in the sidebar and header.
 - **`BlueInkDrop` / `GreenInkDrop` / `PinkInkDrop`**: convenience wrappers for a single colored drop, used for individual accents (e.g. the blue drop next to "Write today").
-
-**Animation:** a `.animate-ink-drop` utility class (defined in `index.css`) pops an element in with a scale+opacity "bloom" over 650ms — use this when introducing a new ink-drop-styled element that should animate in.
-
-**When to add a new ink drop:** only for brand moments (logo, key CTAs) — don't scatter them everywhere or they lose their specialness.
 
 ---
 
