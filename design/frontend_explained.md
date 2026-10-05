@@ -8,6 +8,81 @@ This document is intentionally more explanatory than `ARCHITECTURE.md`. It is me
 
 ## 1. The Big Picture
 
+```text
+                         ┌────────────────────┐
+                         │      main.tsx       │
+                         │                    │
+                         │ ReactDOM.createRoot │
+                         └─────────┬──────────┘
+                                   │
+                                   ▼
+                         ┌────────────────────┐
+                         │       App.tsx      │
+                         │                    │
+                         │     React Router   │
+                         └─────────┬──────────┘
+                                   │
+                         defines application
+                              routes
+                                   │
+                    ┌──────────────┴──────────────┐
+                    │                             │
+                    ▼                             ▼
+           ┌────────────────┐            ┌────────────────┐
+           │   AppLayout    │            │   Other routes │
+           │                │            │   (if any)     │
+           │ Shared layout  │            └────────────────┘
+           └───────┬────────┘
+                   │
+                   │ renders
+                   ▼
+           ┌────────────────┐
+           │   AppHeader    │
+           │                │
+           │ Hibi Notes     │
+           │ Dashboard      │
+           │ Journal        │
+           └───────┬────────┘
+                   │
+                   │ <Outlet />
+                   │
+          ┌────────┴─────────┐
+          │                  │
+          ▼                  ▼
+ ┌────────────────┐  ┌────────────────┐
+ │  Dashboard.tsx │  │   Journal.tsx  │
+ │                │  │                │
+ │  Dashboard UI  │  │  Journal UI    │
+ └───────┬────────┘  └───────┬────────┘
+         │                   │
+         │                   │
+         ▼                   ▼
+ ┌────────────────┐  ┌────────────────┐
+ │ Dashboard      │  │ Journal        │
+ │ Components     │  │ Components     │
+ │                │  │                │
+ │ TodayHabits    │  │ DailyEntry     │
+ │ TodayProgress  │  │ JournalBoard   │
+ │ HabitHeatmap   │  │ MarkdownEditor │
+ └────────────────┘  └────────────────┘
+
+┌──────────────────────────────────────────┐
+│                AppLayout                 │
+│                                          │
+│  ┌──────────────┐                        │
+│  │  AppHeader   │                        │
+│  └──────────────┘                        │
+│                                          │
+│  ┌────────────────────────────────────┐  │
+│  │              <Outlet />            │  │
+│  │                                    │  │
+│  │        Dashboard OR Journal        │  │
+│  │                                    │  │
+│  └────────────────────────────────────┘  │
+│                                          │
+└──────────────────────────────────────────┘
+```
+
 The Hibi Notes frontend follows this general flow:
 
 ```text
@@ -1006,6 +1081,7 @@ The different pieces can now be viewed as one system:
                  │
            Express API
 ```
+
 
 And alongside this:
 

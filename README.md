@@ -1,119 +1,119 @@
 # Journal Habit Tracker
 
-A personal journaling app with a GitHub-style habit tracker. Track daily habits with a contribution-style heatmap and keep a markdown journal, side by side.
+A personal journaling app with a GitHub-style habit tracker. 
+> **Current status:** Journal entries are not yet saved to the database by the client. The journal page currently keeps edits in page state, which is lost when you leave or reload the page.
 
-## Tech Stack
+## Tech stack
 
-- **Client**: React 19, TypeScript, Vite, Tailwind CSS, React Router
-- **Server**: Node.js, Express 5, TypeScript, Prisma ORM
-- **Database**: PostgreSQL
+- **Client:** React 19, TypeScript, Vite, Tailwind CSS 4, React Router
+- **API:** Node.js, Express 5, TypeScript, Prisma ORM
+- **Database:** PostgreSQL
 
-## Project Structure
+## Project structure
 
-```
-client/   # React + Vite frontend
-server/   # Express + Prisma backend API
+```text
+client/   React + Vite frontend
+server/   Express API + Prisma schema and migrations
+design/   UI and implementation notes
 ```
 
 ## Prerequisites
 
-- [Node.js](https://nodejs.org/) v20 or later (and npm)
-- [PostgreSQL](https://www.postgresql.org/) v14 or later
+- Node.js 20 or later and npm
+- PostgreSQL 14 or later
 - Git
 
----
+## Set up
 
-## 1. Install PostgreSQL
+### 1. Create a PostgreSQL database
 
-### Windows
+Install PostgreSQL using the [official installer](https://www.postgresql.org/download/) for your platform, then create a database named `journal_tracker` (for example, through pgAdmin).
 
-1. Download the installer from the [official PostgreSQL site](https://www.postgresql.org/download/windows/).
-2. Run the installer and keep the default port (`5432`). Set and remember a password and username for the `postgres` superuser. This will later come in handy for setting up .env file in your server
-
-
-### Create the database
-
-Go to pgAdmin app and create a database called journal_tracker
-
----
-
-## 2. Clone and install dependencies
+### 2. Clone the repository and install dependencies
 
 ```bash
 git clone <repo-url>
 cd journal-habit-tracker
 
-# install server dependencies
 cd server
 npm install
 
-# install client dependencies
 cd ../client
 npm install
 ```
 
----
+### 3. Configure the server
 
-## 3. Configure environment variables
-
-The server reads its configuration from a `.env` file. Create `server/.env`:
+Create `server/.env` with your PostgreSQL connection details:
 
 ```env
-DATABASE_URL="postgresql://postgres:your_password@localhost:5432/journal_tracker"
+DATABASE_URL="postgresql://postgres:your_password@localhost:5432/journal_tracker?schema=public"
 ```
 
-Replace `your_password` with the `postgres` superuser password you set in step 1, and update the host/port/database name if yours differ.
+Replace `your_password` with the password for your PostgreSQL user. If the password contains URL-reserved characters, percent-encode them in the connection URL.
 
-> The client does not require a `.env` file. It talks to the API at `http://localhost:3000/api` by default (see `client/src/services/apiClient.ts`). If you change the server port, update that constant accordingly.
+The server also accepts these optional settings:
 
----
+| Variable | Default | Purpose |
+|---|---|---|
+| `PORT` | `3000` | Port used by the API server |
+| `CLIENT_URL` | `http://localhost:5173` | Client origin allowed by CORS |
 
-## 4. Set up the database schema
+### 4. Create the database schema
 
-From the `server` directory, run Prisma's migrations to create the tables defined in `prisma/schema.prisma`:
+From the `server` directory, apply the checked-in migrations and generate the Prisma Client:
 
 ```bash
-cd server
 npx prisma migrate dev
 ```
 
-This applies all existing migrations and generates the Prisma Client. Re-run this command whenever new migrations are added to the repo.
+Run this again after pulling changes that add new migrations.
 
----
+### 5. Start the app
 
-## 5. Run the project
+Open two terminals in the repository.
 
-Open two terminals, one for the server and one for the client.
+**API server** (terminal 1):
 
-**Server** (from `server/`):
 ```bash
+cd server
 npm run dev
 ```
-Runs on `http://localhost:3000` by default.
 
-**Client** (from `client/`):
+The API runs at `http://localhost:3000` by default. Its health endpoint is `http://localhost:3000/api/health`.
+
+**Client** (terminal 2):
+
 ```bash
+cd client
 npm run dev
 ```
-Runs on `http://localhost:5173` by default (Vite will print the exact URL).
 
-Open the client URL in your browser to use the app.
+Open the URL printed by Vite (typically `http://localhost:5173`).
 
----
+The client uses `http://localhost:3000/api` by default. To use another API URL, create `client/.env` and set:
+
+```env
+VITE_API_URL="http://localhost:3000/api"
+```
 
 ## Useful commands
 
-| Command | Location | Description |
+Run client commands from `client/` and Prisma commands from `server/`.
+
+| Command | Directory | Description |
 |---|---|---|
-| `npm run dev` | `server/` | Start the API server with hot reload |
-| `npm run dev` | `client/` | Start the Vite dev server |
-| `npm run build` | `client/` | Type-check and build the client for production |
-| `npm run lint` | `client/` | Lint the client codebase |
-| `npx prisma migrate dev` | `server/` | Apply database migrations |
-| `npx prisma studio` | `server/` | Open a GUI to browse/edit database data |
+| `npm run dev` | `client/` | Start the Vite development server |
+| `npm run build` | `client/` | Type-check and build the client |
+| `npm run lint` | `client/` | Lint the client |
+| `npm run dev` | `server/` | Start the API with watch mode |
+| `npx prisma migrate dev` | `server/` | Apply migrations and generate Prisma Client |
+| `npx prisma studio` | `server/` | Open Prisma Studio to browse database records |
 
 ## Troubleshooting
 
-- **`Can't reach database server`**: confirm PostgreSQL is running and `DATABASE_URL` in `server/.env` matches your host/port/credentials.
-- **`password authentication failed`**: double-check the username/password in `DATABASE_URL`, and that the user has privileges on the target database.
-- **Port already in use**: another process may be using `3000` (server) or `5173` (client); stop it or change the port.
+- **Can't reach the database:** Make sure PostgreSQL is running, the `journal_tracker` database exists, and `DATABASE_URL` has the correct host, port, username, password, and database name.
+- **Password authentication failed:** Verify the PostgreSQL credentials and that the user can access `journal_tracker`.
+- **Prisma cannot find `DATABASE_URL`:** Check that `server/.env` exists and that the variable is spelled correctly.
+- **Browser reports a CORS error:** Set `CLIENT_URL` in `server/.env` to the exact client origin, then restart the API server.
+- **Port already in use:** Change `PORT` for the API or use Vite's printed port for the client. If you change the API port, set `VITE_API_URL` in `client/.env` to match and restart both development servers.
