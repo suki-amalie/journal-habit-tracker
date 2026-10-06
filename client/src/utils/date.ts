@@ -111,3 +111,32 @@ export function getMonthWeekPositions(year: number): {
     };
   });
 }
+
+// Timestamp range [from, to) covering one local calendar day.
+// Built from calendar fields so DST shifts can't skew the boundaries.
+export function getDayRange(date: string): { from: string; to: string } {
+  const [year, month, day] = date.split("-").map(Number);
+
+  return {
+    from: new Date(year, month - 1, day).toISOString(),
+    to: new Date(year, month - 1, day + 1).toISOString(),
+  };
+}
+
+// Timestamp range [from, to) covering one local calendar year.
+export function getYearRange(year: number): { from: string; to: string } {
+  return {
+    from: new Date(year, 0, 1).toISOString(),
+    to: new Date(year + 1, 0, 1).toISOString(),
+  };
+}
+
+// Converts an instant to the user's local YYYY-MM-DD.
+export function toLocalDateString(iso: string): string {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: getUserTimeZone(),
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date(iso));
+}

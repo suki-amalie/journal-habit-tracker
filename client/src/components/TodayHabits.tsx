@@ -1,4 +1,4 @@
-import { Plus } from "lucide-react";
+import { Link } from "react-router-dom";
 
 import type { Habit } from "../types/habit";
 import { GreenInkDrop } from "./InkDrops";
@@ -7,40 +7,26 @@ interface TodayHabitsProps {
   habits: Habit[];
   completedHabitIds: Set<number>;
   onToggle: (habit: Habit) => void;
-  onAddHabit: () => void;
+  maxItems?: number;
 }
 
 function TodayHabits({
   habits,
   completedHabitIds,
   onToggle,
-  onAddHabit,
+  maxItems = 3
 }: TodayHabitsProps) {
   return (
-    <section className="lg:col-span-2 rounded-lg border border-[#ddd9d0] bg-[#fffefa] p-6 sm:p-7">
-      <div className="mb-6 flex items-start justify-between">
-        <div>
-          <h2 className="text-lg font-semibold text-[#292824]">
-            Today's habits
-          </h2>
-
-          <p className="mt-1 text-sm text-[#716f68]">
-            Small actions, done consistently.
-          </p>
-        </div>
-
-        <button
-          type="button"
-          onClick={onAddHabit}
-          className="flex items-center gap-1.5 rounded-md px-2.5 py-2 text-sm text-[#716f68] transition hover:bg-[#eae7df] hover:text-[#292824]"
-        >
-          <Plus size={15} />
-          Add habit
-        </button>
+    <section className="rounded-lg border border-[#ddd9d0] bg-[#fffefa] p-6 sm:p-7">
+      <div className="mb-6">
+        <h2 className="text-lg font-semibold text-[#292824]">Habits</h2>
+        <p className="mt-1 text-sm text-[#716f68]">
+            {completedHabitIds.size} / {habits.length} completed
+        </p>
       </div>
 
       <div className="divide-y divide-[#eae7df]">
-        {habits.map((habit) => {
+        {habits.slice(0, maxItems).map((habit) => {
           const completed = completedHabitIds.has(habit.id);
 
           return (
@@ -111,6 +97,11 @@ function TodayHabits({
             </div>
           );
         })}
+      </div>
+      <div className="mt-6 text-right">
+        <Link to="/habits" className="text-sm text-[#716f68] hover:text-[#292824]">
+          View all habits →
+        </Link>
       </div>
     </section>
   );

@@ -1,7 +1,9 @@
 import { Router } from "express";
 
 import {
-  getJournalDates,
+  getJournalEntries,
+  getJournalActivity,
+  deleteJournalEntry,
   getJournalEntry,
   createJournalEntry,
   updateJournalEntry,
@@ -9,9 +11,11 @@ import {
 
 const router = Router();
 
-router.get("/", getJournalDates);
-router.get("/:date", getJournalEntry);
+router.get("/", getJournalEntries);
+router.get("/activity", getJournalActivity);
+router.get("/:id", getJournalEntry);
 router.post("/", createJournalEntry);
-router.put("/:date", updateJournalEntry);
+router.put("/:id", updateJournalEntry);
+router.delete("/:id", deleteJournalEntry);
 
 export default router;

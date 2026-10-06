@@ -1,56 +1,62 @@
-import { apiClient, ApiError } from "./apiClient";
+import { apiClient } from "./apiClient";
 import type { JournalEntry } from "../types/journal";
 
-export async function getJournalDates(): Promise<string[]> {
-  const response = await apiClient("/journal");
+interface TimeRange {
+  from: string;
+  to: string;
+}
+
+function jsonHeaders() {
+  return { "Content-Type": "application/json" };
+}
+
+// Entries created in [from, to), oldest first.
+export async function getJournalEntries({
+  from,
+  to,
+}: TimeRange): Promise<JournalEntry[]> {
+  const params = new URLSearchParams({ from, to });
+  const response = await apiClient(`/journal?${params}`);
+
   return response.json();
 }
 
-export async function getJournalEntry(
-  date: string,
-): Promise<JournalEntry | null> {
-  try {
-    const response = await apiClient(`/journal/${date}`);
-    return response.json();
-  } catch (error) {
-    if (error instanceof ApiError && error.status === 404) {
-      return null;
-    }
-    throw error;
-  }
+// Creation timestamps only, for building activity heatmaps.
+export async function getJournalActivity({
+  from,
+  to,
+}: TimeRange): Promise<string[]> {
+  const params = new URLSearchParams({ from, to });
+  const response = await apiClient(`/journal/activity?${params}`);
+
+  return response.json();
 }
 
 export async function createJournalEntry(
-  date: string,
   content: string,
 ): Promise<JournalEntry> {
   const response = await apiClient("/journal", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      date,
-      content,
-    }),
+    headers: jsonHeaders(),
+    body: JSON.stringify({ content }),
   });
 
   return response.json();
 }
 
 export async function updateJournalEntry(
-  date: string,
+  id: number,
   content: string,
 ): Promise<JournalEntry> {
-  const response = await apiClient(`/journal/${date}`, {
+  const response = await apiClient(`/journal/${id}`, {
     method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      content,
-    }),
+    headers: jsonHeaders(),
+    body: JSON.stringify({ content }),
   });
 
   return response.json();
+}
+
+export async function deleteJournalEntry(id: number): Promise<void> {
+  await apiClient(`/journal/${id}`, { method: "DELETE" });
 }

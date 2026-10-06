@@ -1,22 +1,40 @@
 import type { Request, Response } from "express";
 import { prisma } from "../lib/prisma.js";
+import { isRecordNotFound, isUniqueViolation } from "../lib/prismaErrors.js";
 import {
   createHabitSchema,
+  updateHabitSchema,
+  habitIdSchema,
+  habitListQuerySchema,
+  habitCompletionParamsSchema,
   createHabitCompletionSchema,
   habitCompletionsQuerySchema,
   formatZodError,
 } from "../validation/schemas.js";
 
-// GET /api/habits
+// GET /api/habits?status=active|archived|all (default: active)
 export async function getHabits(
-  _req: Request,
+  req: Request,
   res: Response,
 ) {
   try {
+    const parsed = habitListQuerySchema.safeParse(req.query);
+
+    if (!parsed.success) {
+      return res.status(400).json({
+        error: formatZodError(parsed.error),
+      });
+    }
+
+    const { status } = parsed.data;
+
     const habits = await prisma.habit.findMany({
-      where: {
-        archivedAt: null,
-      },
+      where:
+        status === "active"
+          ? { archivedAt: null }
+          : status === "archived"
+            ? { archivedAt: { not: null } }
+            : {},
       orderBy: {
         createdAt: "asc",
       },
@@ -65,15 +83,106 @@ export async function createHabit(
   }
 }
 
+// PATCH /api/habits/:id
+// Edits name/description and archives or restores the habit.
+export async function updateHabit(
+  req: Request,
+  res: Response,
+) {
+  try {
+    const parsedId = habitIdSchema.safeParse(req.params.id);
+
+    if (!parsedId.success) {
+      return res.status(400).json({
+        error: "Invalid habit ID",
+      });
+    }
+
+    const parsedBody = updateHabitSchema.safeParse(req.body);
+
+    if (!parsedBody.success) {
+      return res.status(400).json({
+        error: formatZodError(parsedBody.error),
+      });
+    }
+
+    const { name, description, archived } = parsedBody.data;
+
+    const habit = await prisma.habit.update({
+      where: {
+        id: parsedId.data,
+      },
+      data: {
+        ...(name !== undefined && { name }),
+        ...(description !== undefined && { description }),
+        ...(archived !== undefined && {
+          archivedAt: archived ? new Date() : null,
+        }),
+      },
+    });
+
+    res.json(habit);
+  } catch (error) {
+    if (isRecordNotFound(error)) {
+      return res.status(404).json({
+        error: "Habit not found",
+      });
+    }
+
+    console.error(error);
+
+    res.status(500).json({
+      error: "Failed to update habit",
+    });
+  }
+}
+
+// DELETE /api/habits/:id
+// Permanent: completions are removed with the habit (onDelete: Cascade).
+export async function deleteHabit(
+  req: Request,
+  res: Response,
+) {
+  try {
+    const parsedId = habitIdSchema.safeParse(req.params.id);
+
+    if (!parsedId.success) {
+      return res.status(400).json({
+        error: "Invalid habit ID",
+      });
+    }
+
+    await prisma.habit.delete({
+      where: {
+        id: parsedId.data,
+      },
+    });
+
+    res.status(204).send();
+  } catch (error) {
+    if (isRecordNotFound(error)) {
+      return res.status(404).json({
+        error: "Habit not found",
+      });
+    }
+
+    console.error(error);
+
+    res.status(500).json({
+      error: "Failed to delete habit",
+    });
+  }
+}
+
 // POST /api/habits/:id/completions
 export async function createHabitCompletion(
   req: Request,
   res: Response,
 ) {
   try {
-    const habitId = Number(req.params.id);
+    const parsedId = habitIdSchema.safeParse(req.params.id);
 
-    if (!Number.isInteger(habitId)) {
+    if (!parsedId.success) {
       return res.status(400).json({
         error: "Invalid habit ID",
       });
@@ -87,16 +196,17 @@ export async function createHabitCompletion(
       });
     }
 
+    const habitId = parsedId.data;
     const parsedDate = new Date(`${parsed.data.date}T00:00:00.000Z`);
 
-    const today = new Date();
-    today.setUTCHours(0, 0, 0, 0);
+    const tomorrow = new Date();
+    tomorrow.setUTCHours(0, 0, 0, 0);
 
-    // Allow a day of slack because the client
-    // may be ahead of the server's UTC date.
-    today.setUTCDate(today.getUTCDate() + 1);
+    // Completions are keyed by the client's local date, which can be a
+    // day ahead of the server's UTC date, so allow one day of slack.
+    tomorrow.setUTCDate(tomorrow.getUTCDate() + 1);
 
-    if (parsedDate > today) {
+    if (parsedDate > tomorrow) {
       return res.status(400).json({
         error: "Cannot mark a future date as completed",
       });
@@ -114,6 +224,12 @@ export async function createHabitCompletion(
       });
     }
 
+    if (habit.archivedAt !== null) {
+      return res.status(409).json({
+        error: "Cannot complete an archived habit",
+      });
+    }
+
     const completion = await prisma.habitCompletion.create({
       data: {
         habitId,
@@ -122,14 +238,14 @@ export async function createHabitCompletion(
     });
 
     res.status(201).json(completion);
-  } catch (error: any) {
-    console.error(error);
-
-    if (error.code === "P2002") {
+  } catch (error) {
+    if (isUniqueViolation(error)) {
       return res.status(409).json({
         error: "Habit is already completed on this date",
       });
     }
+
+    console.error(error);
 
     res.status(500).json({
       error: "Failed to create completion",
@@ -143,14 +259,15 @@ export async function deleteHabitCompletion(
   res: Response,
 ) {
   try {
-    const habitId = Number(req.params.id);
-    const { date } = req.params;
+    const parsed = habitCompletionParamsSchema.safeParse(req.params);
 
-    if (!Number.isInteger(habitId)) {
+    if (!parsed.success) {
       return res.status(400).json({
-        error: "Invalid habit ID",
+        error: formatZodError(parsed.error),
       });
     }
+
+    const { id: habitId, date } = parsed.data;
 
     await prisma.habitCompletion.delete({
       where: {
@@ -163,10 +280,16 @@ export async function deleteHabitCompletion(
 
     res.status(204).send();
   } catch (error) {
+    if (isRecordNotFound(error)) {
+      return res.status(404).json({
+        error: "Completion not found",
+      });
+    }
+
     console.error(error);
 
-    res.status(404).json({
-      error: "Completion not found",
+    res.status(500).json({
+      error: "Failed to delete completion",
     });
   }
 }
@@ -177,9 +300,9 @@ export async function getHabitCompletions(
   res: Response,
 ) {
   try {
-    const habitId = Number(req.params.id);
+    const parsedId = habitIdSchema.safeParse(req.params.id);
 
-    if (!Number.isInteger(habitId)) {
+    if (!parsedId.success) {
       return res.status(400).json({
         error: "Invalid habit ID",
       });
@@ -187,7 +310,7 @@ export async function getHabitCompletions(
 
     const completions = await prisma.habitCompletion.findMany({
       where: {
-        habitId,
+        habitId: parsedId.data,
       },
       orderBy: {
         date: "asc",

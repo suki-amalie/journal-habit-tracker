@@ -1,33 +1,82 @@
 import type { Request, Response } from "express";
 import { prisma } from "../lib/prisma.js";
+import { isRecordNotFound } from "../lib/prismaErrors.js";
 import {
   createJournalEntrySchema,
   updateJournalEntrySchema,
-  dateStringSchema,
+  journalEntryIdSchema,
+  journalRangeQuerySchema,
   formatZodError,
 } from "../validation/schemas.js";
 
-export async function getJournalDates(
+export async function getJournalEntries(
   req: Request,
   res: Response,
 ) {
   try {
+    const parsed = journalRangeQuerySchema.safeParse(req.query);
+
+    if (!parsed.success) {
+      return res.status(400).json({
+        error: formatZodError(parsed.error),
+      });
+    }
+
     const entries = await prisma.journalEntry.findMany({
-      select: {
-        date: true,
+      where: {
+        createdAt: {
+          gte: new Date(parsed.data.from),
+          lt: new Date(parsed.data.to),
+        },
       },
       orderBy: {
-        date: "asc",
+        createdAt: "asc",
       },
     });
 
-    res.json(
-      entries.map((entry: { date: Date }) => entry.date.toISOString().slice(0, 10)),
-    );
+    res.json(entries);
   } catch (error) {
     console.error(error);
     res.status(500).json({
       error: "Failed to get journal entries",
+    });
+  }
+}
+
+// Returns timestamps only so the client can bucket them by local day.
+export async function getJournalActivity(
+  req: Request,
+  res: Response,
+) {
+  try {
+    const parsed = journalRangeQuerySchema.safeParse(req.query);
+
+    if (!parsed.success) {
+      return res.status(400).json({
+        error: formatZodError(parsed.error),
+      });
+    }
+
+    const rows = await prisma.journalEntry.findMany({
+      where: {
+        createdAt: {
+          gte: new Date(parsed.data.from),
+          lt: new Date(parsed.data.to),
+        },
+      },
+      select: {
+        createdAt: true,
+      },
+      orderBy: {
+        createdAt: "asc",
+      },
+    });
+
+    res.json(rows.map((row) => row.createdAt.toISOString()));
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      error: "Failed to get journal activity",
     });
   }
 }
@@ -37,19 +86,19 @@ export async function getJournalEntry(
   res: Response,
 ) {
   try {
-    const { date } = req.params;
+    const parsed = journalEntryIdSchema.safeParse(req.params.id);
 
-    const dateParsed = dateStringSchema.safeParse(date);
-
-    if (!dateParsed.success) {
+    if (!parsed.success) {
       return res.status(400).json({
-        error: formatZodError(dateParsed.error),
+        error: formatZodError(parsed.error),
       });
     }
 
+    const id = parsed.data;
+
     const entry = await prisma.journalEntry.findUnique({
       where: {
-        date: new Date(`${date}T00:00:00.000Z`),
+        id,
       },
     });
 
@@ -81,11 +130,10 @@ export async function createJournalEntry(
       });
     }
 
-    const { date, content } = parsed.data;
+    const { content } = parsed.data;
 
     const entry = await prisma.journalEntry.create({
       data: {
-        date: new Date(`${date}T00:00:00.000Z`),
         content,
       },
     });
@@ -104,29 +152,28 @@ export async function updateJournalEntry(
   res: Response,
 ) {
   try {
-    const { date } = req.params;
+    const parsedId = journalEntryIdSchema.safeParse(req.params.id);
 
-    const dateParsed = dateStringSchema.safeParse(date);
-
-    if (!dateParsed.success) {
+    if (!parsedId.success) {
       return res.status(400).json({
-        error: formatZodError(dateParsed.error),
+        error: formatZodError(parsedId.error),
       });
     }
 
-    const parsed = updateJournalEntrySchema.safeParse(req.body);
+    const parsedBody = updateJournalEntrySchema.safeParse(req.body);
 
-    if (!parsed.success) {
+    if (!parsedBody.success) {
       return res.status(400).json({
-        error: formatZodError(parsed.error),
+        error: formatZodError(parsedBody.error),
       });
     }
 
-    const { content } = parsed.data;
+    const id = parsedId.data;
+    const { content } = parsedBody.data;
 
     const entry = await prisma.journalEntry.update({
       where: {
-        date: new Date(`${date}T00:00:00.000Z`),
+        id,
       },
       data: {
         content,
@@ -135,9 +182,49 @@ export async function updateJournalEntry(
 
     res.json(entry);
   } catch (error) {
+    if (isRecordNotFound(error)) {
+      return res.status(404).json({
+        error: "Journal entry not found",
+      });
+    }
     console.error(error);
     res.status(500).json({
       error: "Failed to update journal entry",
+    });
+  }
+}
+
+export async function deleteJournalEntry(
+  req: Request,
+  res: Response,
+) {
+  try {
+    const parsed = journalEntryIdSchema.safeParse(req.params.id);
+
+    if (!parsed.success) {
+      return res.status(400).json({
+        error: formatZodError(parsed.error),
+      });
+    }
+
+    const id = parsed.data;
+
+    await prisma.journalEntry.delete({
+      where: {
+        id,
+      },
+    });
+
+    res.status(204).send();
+  } catch (error) {
+    if (isRecordNotFound(error)) {
+      return res.status(404).json({
+        error: "Journal entry not found",
+      });
+    }
+    console.error(error);
+    res.status(500).json({
+      error: "Failed to delete journal entry",
     });
   }
 }

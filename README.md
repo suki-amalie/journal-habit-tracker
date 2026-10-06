@@ -47,7 +47,7 @@ npm install
 Create `server/.env` with your PostgreSQL connection details:
 
 ```env
-DATABASE_URL="postgresql://postgres:your_password@localhost:5432/journal_tracker?schema=public"
+DATABASE_URL="postgresql://postgres:your_password@localhost:5432/journal_tracker"
 ```
 
 Replace `your_password` with the password for your PostgreSQL user. If the password contains URL-reserved characters, percent-encode them in the connection URL.
