@@ -1,21 +1,36 @@
 # Journal Habit Tracker
 
-A personal journaling app with a GitHub-style habit tracker. 
-> **Current status:** Journal entries are not yet saved to the database by the client. The journal page currently keeps edits in page state, which is lost when you leave or reload the page.
+A personal journaling app with a GitHub-style habit tracker: check off habits daily, write Markdown journal entries (as many as you like per day), and browse both as yearly heatmaps.
+
+## Features
+
+- **Dashboard:** today's habits and journal, plus habit and journal heatmaps. Click a habit day to see what you completed; click a journal day to open it in History.
+- **Habits:** add, edit, archive and delete habits, with streaks and per-habit heatmaps.
+- **Journal:** Markdown editor with live preview, draft autosave and Ctrl+Enter to save; History lists entries per day.
 
 ## Tech stack
 
-- **Client:** React 19, TypeScript, Vite, Tailwind CSS 4, React Router
-- **API:** Node.js, Express 5, TypeScript, Prisma ORM
+- **Client:** React 19, TypeScript, Vite, Tailwind CSS 4, React Router, TanStack Query
+- **API:** Node.js, Express 5, TypeScript, Prisma ORM, Zod
 - **Database:** PostgreSQL
+- **Tests:** Vitest (client helpers, API with Supertest)
 
 ## Project structure
 
 ```text
 client/   React + Vite frontend
 server/   Express API + Prisma schema and migrations
-design/   UI and implementation notes
+design/   NEW_DESIGN.md (page and component design) and CODEBASE_GUIDE.md
 ```
+
+New to this stack? Read the [codebase guide](design/CODEBASE_GUIDE.md) for a beginner-friendly tour and how data flows through the app.
+
+## Data model notes
+
+- **Habit completions** are calendar days (`YYYY-MM-DD`, the user's local date). `GET /api/habits/completions` returns the last 366 days by default; pass `from`/`to` (max 400 days) for other periods.
+- **Journal entries** are timestamps, so there can be many per day. The client asks for a local-day range with `GET /api/journal?from=&to=` (ISO timestamps with offset, `from` inclusive, `to` exclusive).
+- Deleting a habit is permanent and removes its completions; archive it to keep the history.
+- There is no authentication yet, so don't expose the API publicly.
 
 ## Prerequisites
 
@@ -106,6 +121,7 @@ Run client commands from `client/` and Prisma commands from `server/`.
 | `npm run dev` | `client/` | Start the Vite development server |
 | `npm run build` | `client/` | Type-check and build the client |
 | `npm run lint` | `client/` | Lint the client |
+| `npm test` | `client/`, `server/` | Run the Vitest suites |
 | `npm run dev` | `server/` | Start the API with watch mode |
 | `npx prisma migrate dev` | `server/` | Apply migrations and generate Prisma Client |
 | `npx prisma studio` | `server/` | Open Prisma Studio to browse database records |

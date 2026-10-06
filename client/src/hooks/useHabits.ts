@@ -1,6 +1,13 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { getHabits, createHabit } from "../services/habitService";
+import {
+  createHabit,
+  deleteHabit,
+  getHabits,
+  updateHabit,
+  type HabitStatus,
+} from "../services/habitService";
 import type { Habit } from "../types/habit";
 
 interface UseHabits {
@@ -8,37 +15,66 @@ interface UseHabits {
   loading: boolean;
   error: string | null;
   addHabit: (name: string, description: string | null) => Promise<void>;
+  editHabit: (
+    id: number,
+    patch: { name?: string; description?: string | null; archived?: boolean },
+  ) => Promise<void>;
+  removeHabit: (id: number) => Promise<void>;
 }
 
-export function useHabits(): UseHabits {
-  const [habits, setHabits] = useState<Habit[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+const EMPTY: Habit[] = [];
 
-  useEffect(() => {
-    async function loadHabits() {
-      try {
-        const data = await getHabits();
-        setHabits(data);
-      } catch {
-        setError("Couldn't load your habits. Try refreshing.");
-      } finally {
-        setLoading(false);
-      }
-    }
+export function useHabits(status: HabitStatus = "active"): UseHabits {
+  const queryClient = useQueryClient();
+  const [actionError, setActionError] = useState<string | null>(null);
 
-    loadHabits();
-  }, []);
+  const query = useQuery({
+    queryKey: ["habits", status],
+    queryFn: () => getHabits(status),
+  });
 
-  async function addHabit(name: string, description: string | null) {
+  const refresh = () => queryClient.invalidateQueries({ queryKey: ["habits"] });
+
+  const create = useMutation({
+    mutationFn: (v: { name: string; description: string | null }) =>
+      createHabit(v.name, v.description),
+    onSuccess: refresh,
+  });
+  const update = useMutation({
+    mutationFn: (v: {
+      id: number;
+      patch: { name?: string; description?: string | null; archived?: boolean };
+    }) => updateHabit(v.id, v.patch),
+    onSuccess: refresh,
+  });
+  const remove = useMutation({
+    mutationFn: (id: number) => deleteHabit(id),
+    onSuccess: async () => {
+      await refresh();
+      await queryClient.invalidateQueries({ queryKey: ["completions"] });
+    },
+  });
+
+  async function run(action: () => Promise<unknown>, message: string) {
     try {
-      const habit = await createHabit(name, description);
-      setHabits((current) => [...current, habit]);
-      setError(null);
+      await action();
+      setActionError(null);
     } catch {
-      setError("Couldn't add that habit. Try again.");
+      setActionError(message);
     }
   }
 
-  return { habits, loading, error, addHabit };
+  return {
+    habits: query.data ?? EMPTY,
+    loading: query.isPending,
+    error: query.isError
+      ? "Couldn't load your habits. Try refreshing."
+      : actionError,
+    addHabit: (name, description) =>
+      run(() => create.mutateAsync({ name, description }), "Couldn't add that habit."),
+    editHabit: (id, patch) =>
+      run(() => update.mutateAsync({ id, patch }), "Couldn't update that habit."),
+    removeHabit: (id) =>
+      run(() => remove.mutateAsync(id), "Couldn't delete that habit."),
+  };
 }

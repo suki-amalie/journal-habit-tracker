@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Navigate, Routes, Route } from "react-router-dom";
 
 import AppLayout from "./layouts/AppLayout";
 import JournalLayout from "./layouts/JournalLayout";
@@ -15,6 +15,7 @@ function App() {
           <Route path="/" element={<Dashboard />} />
           <Route path="/habits" element={<Habits />} />
           <Route path="/journal" element={<JournalLayout />}>
+            <Route index element={<Navigate to="write" replace />} />
             <Route path="write" element={<Journal />} />
             <Route path="history" element={<JournalHistory />} />
           </Route>

@@ -1,23 +1,19 @@
 import { useState } from "react";
 
+import JournalEntryCard from "../components/JournalEntryCard";
+import MarkdownEditor from "../components/MarkdownEditor";
+import { useDraft } from "../hooks/useDraft";
 import { useJournalEntries } from "../hooks/useJournalEntries";
 import { getTodayDate } from "../utils/date";
 
-function formatTime(iso: string): string {
-  return new Date(iso).toLocaleTimeString([], {
-    hour: "numeric",
-    minute: "2-digit",
-  });
-}
-
 function Journal() {
   const today = getTodayDate();
-  const { entries, loading, error, addEntry } = useJournalEntries(today);
-  const [content, setContent] = useState("");
+  const { entries, loading, error, addEntry, editEntry, removeEntry } = useJournalEntries(today);
+  const [content, setContent] = useDraft("journal:new-entry-draft");
   const [saving, setSaving] = useState(false);
 
   async function handleSave() {
-    if (content.trim() === "") return;
+    if (saving || content.trim() === "") return;
 
     setSaving(true);
     const saved = await addEntry(content.trim());
@@ -34,15 +30,19 @@ function Journal() {
         Capture what's on your mind, as often as you like.
       </p>
 
-      <textarea
-        value={content}
-        onChange={(event) => setContent(event.target.value)}
-        rows={8}
-        placeholder="What's on your mind?"
-        className="mt-8 w-full rounded-lg border border-[#ddd9d0] bg-[#fffefa] p-4 text-[#292824] focus:outline-none focus:ring-2 focus:ring-[#8c959f]"
-      />
+      <div className="mt-8">
+        <MarkdownEditor
+          value={content}
+          onChange={setContent}
+          onSubmit={handleSave}
+          placeholder="What's on your mind?"
+        />
+      </div>
 
-      <div className="mt-3 flex justify-end">
+      <div className="mt-3 flex items-center justify-end gap-4">
+        <span className="text-xs text-[#716d63]">
+          Draft saved automatically · Ctrl+Enter to save
+        </span>
         <button
           type="button"
           onClick={handleSave}
@@ -64,17 +64,7 @@ function Journal() {
       ) : (
         <ul className="mt-3 space-y-3">
           {[...entries].reverse().map((entry) => (
-            <li
-              key={entry.id}
-              className="rounded-lg border border-[#ddd9d0] bg-[#fffefa] p-4"
-            >
-              <p className="text-xs text-[#716f68]">
-                {formatTime(entry.createdAt)}
-              </p>
-              <p className="mt-1 whitespace-pre-wrap text-[#292824]">
-                {entry.content}
-              </p>
-            </li>
+            <JournalEntryCard key={entry.id} entry={entry} onEdit={editEntry} onDelete={removeEntry} />
           ))}
         </ul>
       )}

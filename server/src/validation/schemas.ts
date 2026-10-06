@@ -8,6 +8,12 @@ export const JOURNAL_CONTENT_MAX_LENGTH = 20_000;
 
 export const JOURNAL_MAX_RANGE_DAYS = 400;
 
+export const COMPLETIONS_MAX_RANGE_DAYS = 400;
+
+export const COMPLETIONS_DEFAULT_RANGE_DAYS = 366;
+
+export const HABIT_STATUSES = ["active", "archived", "all"] as const;
+
 // Calendar date (YYYY-MM-DD), rejecting impossible dates like 2026-13-45.
 export const dateStringSchema = z.iso.date("Date must be a valid YYYY-MM-DD date");
 
@@ -34,7 +40,7 @@ export const updateHabitSchema = z.object({
 });
 
 export const habitListQuerySchema = z.object({
-  status: z.enum(["active", "archived", "all"]).default("active"),
+  status: z.enum(HABIT_STATUSES).default("active"),
 });
 
 
@@ -64,7 +70,15 @@ export const habitCompletionsQuerySchema = z
   })
   .refine((query) => !query.from || !query.to || query.from <= query.to, {
     message: "'from' must not be after 'to'",
-  });
+  })
+  .refine(
+    (query) =>
+      !query.from ||
+      !query.to ||
+      (Date.parse(query.to) - Date.parse(query.from)) / 86_400_000 <=
+        COMPLETIONS_MAX_RANGE_DAYS,
+    { message: `Range must not exceed ${COMPLETIONS_MAX_RANGE_DAYS} days` },
+  );
 
 export const habitCompletionParamsSchema = z.object({
   id: habitIdSchema,

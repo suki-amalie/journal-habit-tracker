@@ -1,4 +1,5 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import ActivityHeatmap from "../components/ActivityHeatmap";
 import { JOURNAL_COLORS } from "../components/heatmapColors";
@@ -6,7 +7,7 @@ import TodayHabits from "../components/TodayHabits";
 import TodayJournal from "../components/TodayJournal";
 
 import { useHabits } from "../hooks/useHabits";
-import { useHabitCompletions } from "../hooks/useHabitsCompletions";
+import { useHabitCompletions, useHabitCompletionsForYear } from "../hooks/useHabitsCompletions";
 import { useJournalActivity } from "../hooks/useJournalActivity";
 import { useJournalEntries } from "../hooks/useJournalEntries";
 
@@ -14,13 +15,24 @@ import { getTodayDate } from "../utils/date";
 import { getCompletionCountByDate } from "../utils/habit";
 
 function Dashboard() {
+  const navigate = useNavigate();
   const today = getTodayDate();
 
-  const { habits, loading, error: habitsError } = useHabits();
-  const { completions, completedHabitIds, error: completionsError, toggleHabit } =
+  const currentYear = Number(today.slice(0, 4));
+  const [habitYear, setHabitYear] = useState(currentYear);
+  const [journalYear, setJournalYear] = useState(currentYear);
+
+  const { habits, loading, error: habitsError } = useHabits("all");
+  const { completions: recentCompletions, completedHabitIds, error: completionsError, toggleHabit } =
     useHabitCompletions(habits);
+  const pastCompletions = useHabitCompletionsForYear(
+    habitYear,
+    habitYear !== currentYear,
+  );
+  const completions =
+    habitYear === currentYear ? recentCompletions : pastCompletions.completions;
   const { countsByDate: journalCountsByDate, error: journalActivityError } =
-    useJournalActivity(Number(today.slice(0, 4)));
+    useJournalActivity(journalYear);
   const { entries, loading: entriesLoading } = useJournalEntries(today);
 
   const error = completionsError ?? habitsError ?? journalActivityError;
@@ -34,6 +46,18 @@ function Dashboard() {
     () => getCompletionCountByDate(completions),
     [completions],
   );
+
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
+
+  const completedOnSelectedDate = useMemo(() => {
+    if (selectedDate === null) return [];
+
+    return habits.filter((habit) =>
+      (completions[habit.id] ?? []).some(
+        (completion) => completion.date.slice(0, 10) === selectedDate,
+      ),
+    );
+  }, [habits, completions, selectedDate]);
 
   const dateLabel = new Date().toLocaleDateString("en-US", {
     month: "long",
@@ -83,9 +107,32 @@ function Dashboard() {
           title="Habit activity"
           description="Your habit completions throughout the year"
           countsByDate={habitCountsByDate}
+          onYearChange={setHabitYear}
           tooltip={(date, count) => `${date}: ${count} habit completions`}
           footerLink={{ to: "/habits", label: "View habits" }}
+          selectedDate={selectedDate}
+          onSelectDate={(date) =>
+            setSelectedDate((current) => (current === date ? null : date))
+          }
         />
+
+        {selectedDate && (
+          <div className="mt-4 rounded-lg border border-[#ddd9d0] bg-[#fffefa] p-5">
+            <h3 className="text-sm font-medium text-[#292824]">{selectedDate}</h3>
+
+            <ul className="mt-3 space-y-1.5 text-sm text-[#292824]">
+              {completedOnSelectedDate.map((habit) => (
+                <li key={habit.id} className="flex items-center gap-2">
+                  <span className="text-[#4F8A47]">✓</span>
+                  {habit.name}
+                  {habit.archivedAt !== null && (
+                    <span className="text-xs text-[#716d63]">(archived)</span>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </section>
 
       <section className="mt-12">
@@ -96,11 +143,13 @@ function Dashboard() {
           title="Journal activity"
           description="Days you wrote"
           countsByDate={journalCountsByDate}
+          onYearChange={setJournalYear}
           colors={JOURNAL_COLORS}
           tooltip={(date, count) =>
             `${date}: ${count} journal ${count === 1 ? "entry" : "entries"}`
           }
           footerLink={{ to: "/journal/history", label: "Open journal" }}
+          onSelectDate={(date) => navigate(`/journal/history?date=${date}`)}
         />
       </section>
     </div>

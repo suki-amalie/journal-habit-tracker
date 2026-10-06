@@ -3,14 +3,22 @@ import { useState } from "react";
 interface AddHabitModalProps {
   onClose: () => void;
   onAdd: (name: string, description: string | null) => void;
+  title?: string;
+  submitLabel?: string;
+  initialName?: string;
+  initialDescription?: string;
 }
 
 function AddHabitModal({
   onClose,
   onAdd,
+  title = "New habit",
+  submitLabel = "Add habit",
+  initialName = "",
+  initialDescription = "",
 }: AddHabitModalProps) {
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
+  const [name, setName] = useState(initialName);
+  const [description, setDescription] = useState(initialDescription);
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -35,7 +43,7 @@ function AddHabitModal({
         onMouseDown={(event) => event.stopPropagation()}
       >
         <h2 className="text-xl font-semibold text-[#292824]">
-          New habit
+          {title}
         </h2>
 
         <form onSubmit={handleSubmit} className="mt-6">
@@ -126,7 +134,7 @@ function AddHabitModal({
                 disabled:opacity-40
               "
             >
-              Add habit
+              {submitLabel}
             </button>
           </div>
         </form>

@@ -9,6 +9,7 @@ import {
   habitCompletionParamsSchema,
   createHabitCompletionSchema,
   habitCompletionsQuerySchema,
+  COMPLETIONS_DEFAULT_RANGE_DAYS,
   formatZodError,
 } from "../validation/schemas.js";
 
@@ -343,18 +344,21 @@ export async function getAllHabitCompletions(
 
     const { from, to } = parsed.data;
 
-    const dateFilter: { gte?: Date; lte?: Date } = {};
-
-    if (from) {
-      dateFilter.gte = new Date(`${from}T00:00:00.000Z`);
-    }
-
-    if (to) {
-      dateFilter.lte = new Date(`${to}T00:00:00.000Z`);
-    }
+    // Unbounded history would grow forever, so default to the last year.
+    const toDate = to ?? new Date().toISOString().slice(0, 10);
+    const fromDate =
+      from ??
+      new Date(Date.parse(toDate) - COMPLETIONS_DEFAULT_RANGE_DAYS * 86_400_000)
+        .toISOString()
+        .slice(0, 10);
 
     const completions = await prisma.habitCompletion.findMany({
-      where: Object.keys(dateFilter).length > 0 ? { date: dateFilter } : {},
+      where: {
+        date: {
+          gte: new Date(`${fromDate}T00:00:00.000Z`),
+          lte: new Date(`${toDate}T00:00:00.000Z`),
+        },
+      },
       orderBy: {
         date: "asc",
       },

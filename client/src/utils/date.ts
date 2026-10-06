@@ -1,4 +1,9 @@
-// utils/date.ts
+// Two day models are used on purpose:
+//  - Habit completions are calendar days ("YYYY-MM-DD", the user's local date).
+//    The server stores them as UTC midnight and never shifts them.
+//  - Journal entries are instants (ISO timestamps). A "day" is a local
+//    [from, to) range from getDayRange/getYearRange, and toLocalDateString
+//    buckets a timestamp back into a local day.
 
 export function getUserTimeZone(): string {
   return Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -7,15 +12,26 @@ export function getUserTimeZone(): string {
 
 export function getTodayDate(): string {
   const timeZone = getUserTimeZone();
+
+  const today = new Date();
+
   
   return new Intl.DateTimeFormat("en-CA", {
     timeZone,
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
-  }).format(new Date());
+  }).format(today);
 }
 
+
+export function addDays(date: string, days: number): string {
+  const [year, month, day] = date.split("-").map(Number);
+
+  return new Date(Date.UTC(year, month - 1, day + days))
+    .toISOString()
+    .slice(0, 10);
+}
 
 export function getDateString(
   year: number,

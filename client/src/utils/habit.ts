@@ -1,4 +1,5 @@
 import type { HabitCompletion } from "../types/habit";
+import { addDays } from "./date";
 
 export function isCompletedToday(
   habitId: number,
@@ -8,6 +9,24 @@ export function isCompletedToday(
   return (completions[habitId] ?? []).some(
     (completion) => completion.date.slice(0, 10) === today,
   );
+}
+
+// Consecutive days completed. A streak stays alive until today ends.
+export function getCurrentStreak(
+  completions: HabitCompletion[],
+  today: string,
+): number {
+  const dates = new Set(completions.map((c) => c.date.slice(0, 10)));
+
+  let cursor = dates.has(today) ? today : addDays(today, -1);
+  let streak = 0;
+
+  while (dates.has(cursor)) {
+    streak++;
+    cursor = addDays(cursor, -1);
+  }
+
+  return streak;
 }
 
 export function getCompletionCountByDate(
