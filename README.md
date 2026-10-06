@@ -4,39 +4,41 @@ A personal journaling app with a GitHub-style habit tracker: check off habits da
 
 ## Features
 
-- **Dashboard:** today's habits and journal, plus habit and journal heatmaps. Click a habit day to see what you completed; click a journal day to open it in History.
-- **Habits:** add, edit, archive and delete habits, with streaks and per-habit heatmaps.
-- **Journal:** Markdown editor with live preview, draft autosave and Ctrl+Enter to save; History lists entries per day.
+* **Dashboard:** today's habits and journal, plus habit and journal heatmaps. Click a habit day to see what you completed; click a journal day to open it in History.
+* **Habits:** add, edit, archive and delete habits, with streaks and per-habit heatmaps.
+* **Journal:** Markdown editor with live preview, draft autosave and Ctrl+Enter to save; History lists entries per day.
 
 ## Tech stack
 
-- **Client:** React 19, TypeScript, Vite, Tailwind CSS 4, React Router, TanStack Query
-- **API:** Node.js, Express 5, TypeScript, Prisma ORM, Zod
-- **Database:** PostgreSQL
-- **Tests:** Vitest (client helpers, API with Supertest)
+* **Client:** React 19, TypeScript, Vite, Tailwind CSS 4, React Router, TanStack Query
+* **API:** Node.js, Express 5, TypeScript, Prisma ORM, Zod
+* **Database:** PostgreSQL
+* **Tests:** Vitest, Testing Library, Supertest, PostgreSQL integration tests
+* **CI:** GitHub Actions
 
 ## Project structure
 
 ```text
 client/   React + Vite frontend
-server/   Express API + Prisma schema and migrations
-design/   NEW_DESIGN.md (page and component design) and CODEBASE_GUIDE.md
+server/   Express API + Prisma schema, migrations and tests
+design/   NEW_DESIGN.md and CODEBASE_GUIDE.md
 ```
 
 New to this stack? Read the [codebase guide](design/CODEBASE_GUIDE.md) for a beginner-friendly tour and how data flows through the app.
 
 ## Data model notes
 
-- **Habit completions** are calendar days (`YYYY-MM-DD`, the user's local date). `GET /api/habits/completions` returns the last 366 days by default; pass `from`/`to` (max 400 days) for other periods.
-- **Journal entries** are timestamps, so there can be many per day. The client asks for a local-day range with `GET /api/journal?from=&to=` (ISO timestamps with offset, `from` inclusive, `to` exclusive).
-- Deleting a habit is permanent and removes its completions; archive it to keep the history.
-- There is no authentication yet, so don't expose the API publicly.
+* **Habit completions** are calendar days (`YYYY-MM-DD`, the user's local date). `GET /api/habits/completions` returns the last 366 days by default; pass `from`/`to` (max 400 days) for other periods.
+* **Journal entries** are timestamps, so there can be many per day. The client asks for a local-day range with `GET /api/journal?from=&to=` (ISO timestamps with offset, `from` inclusive, `to` exclusive).
+* Deleting a habit is permanent and removes its completions; archive it to keep the history.
+* There is no authentication yet, so don't expose the API publicly.
+* A habit can have at most one completion for a given date. This is enforced by the PostgreSQL unique constraint on `(habitId, date)`.
 
 ## Prerequisites
 
-- Node.js 20 or later and npm
-- PostgreSQL 14 or later
-- Git
+* Node.js 20 or later and npm
+* PostgreSQL 14 or later
+* Git
 
 ## Set up
 
@@ -44,10 +46,13 @@ New to this stack? Read the [codebase guide](design/CODEBASE_GUIDE.md) for a beg
 
 Install PostgreSQL using the [official installer](https://www.postgresql.org/download/) for your platform, then create a database named `journal_tracker` (for example, through pgAdmin).
 
+The `journal_tracker` database is the development database. A separate database is used for integration tests; see [Testing](#testing).
+
 ### 2. Clone the repository and install dependencies
 
 ```bash
 git clone <repo-url>
+
 cd journal-habit-tracker
 
 cd server
@@ -69,9 +74,9 @@ Replace `your_password` with the password for your PostgreSQL user. If the passw
 
 The server also accepts these optional settings:
 
-| Variable | Default | Purpose |
-|---|---|---|
-| `PORT` | `3000` | Port used by the API server |
+| Variable     | Default                 | Purpose                       |
+| ------------ | ----------------------- | ----------------------------- |
+| `PORT`       | `3000`                  | Port used by the API server   |
 | `CLIENT_URL` | `http://localhost:5173` | Client origin allowed by CORS |
 
 ### 4. Create the database schema
@@ -112,24 +117,80 @@ The client uses `http://localhost:3000/api` by default. To use another API URL, 
 VITE_API_URL="http://localhost:3000/api"
 ```
 
-## Useful commands
+## Testing
 
-Run client commands from `client/` and Prisma commands from `server/`.
+Hibi uses several levels of tests so that different parts of the application can be tested independently.
 
-| Command | Directory | Description |
-|---|---|---|
-| `npm run dev` | `client/` | Start the Vite development server |
-| `npm run build` | `client/` | Type-check and build the client |
-| `npm run lint` | `client/` | Lint the client |
-| `npm test` | `client/`, `server/` | Run the Vitest suites |
-| `npm run dev` | `server/` | Start the API with watch mode |
-| `npx prisma migrate dev` | `server/` | Apply migrations and generate Prisma Client |
-| `npx prisma studio` | `server/` | Open Prisma Studio to browse database records |
+### Client tests
 
-## Troubleshooting
+Client tests cover pure helper functions as well as React hooks and components.
 
-- **Can't reach the database:** Make sure PostgreSQL is running, the `journal_tracker` database exists, and `DATABASE_URL` has the correct host, port, username, password, and database name.
-- **Password authentication failed:** Verify the PostgreSQL credentials and that the user can access `journal_tracker`.
-- **Prisma cannot find `DATABASE_URL`:** Check that `server/.env` exists and that the variable is spelled correctly.
-- **Browser reports a CORS error:** Set `CLIENT_URL` in `server/.env` to the exact client origin, then restart the API server.
-- **Port already in use:** Change `PORT` for the API or use Vite's printed port for the client. If you change the API port, set `VITE_API_URL` in `client/.env` to match and restart both development servers.
+From `client/`:
+
+```bash
+npm test
+```
+
+### Server API tests
+
+The main server API suite uses Vitest and Supertest. Prisma is mocked in these tests.
+
+This makes the tests fast and allows specific database errors such as Prisma `P2002` and `P2025` to be simulated.
+
+From `server/`:
+
+```bash
+npm test
+```
+
+These tests verify API behaviour such as:
+
+* request validation
+* HTTP status codes
+* controller behaviour
+* error handling
+* route behaviour
+
+### PostgreSQL integration tests
+
+The integration suite uses the **real PostgreSQL database**, rather than a mocked Prisma client.
+
+The test flow is:
+
+```text
+Supertest
+    ↓
+Express
+    ↓
+Controllers
+    ↓
+Prisma
+    ↓
+PostgreSQL test database
+```
+
+The integration tests currently verify:
+
+1. Creating a habit actually persists a row in PostgreSQL.
+2. PostgreSQL rejects duplicate habit completions through the `(habitId, date)` unique constraint, producing Prisma `P2002` and an HTTP `409`.
+3. Deleting a habit cascades to its completions through the database foreign-key relationship.
+
+### Setting up the test database
+
+Create a separate PostgreSQL database named:
+
+```text
+journal_tracker_test
+```
+
+Do not use the development database for integration tests.
+
+Create `server/.env.test`:
+
+```env
+DATABASE_URL="postgresql://postgres:your_password@localhost:5432/journal_tracker_test"
+```
+
+Replace `your_password` with your PostgreSQL password.
+
+The test database
