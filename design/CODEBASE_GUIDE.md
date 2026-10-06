@@ -2,6 +2,8 @@
 
 This guide explains how Journal Habit Tracker works, assuming you have never used React, Express, Prisma or PostgreSQL. Read it top to bottom once, then use it as a map.
 
+[![Architecture diagram of suki-amalie/journal-habit-tracker](https://gitdiagram.com/suki-amalie/journal-habit-tracker/diagram.png)](https://gitdiagram.com/suki-amalie/journal-habit-tracker?utm_source=readme&utm_medium=picture)
+
 ## 1. The big picture
 
 The app has three parts that run separately and talk to each other:
