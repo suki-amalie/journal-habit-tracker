@@ -52,7 +52,7 @@ function JournalHistory() {
   }, [countsByDate, entries, loading, selectedDate, year]);
 
   return (
-    <div className="mx-auto max-w-4xl px-6 pb-10">
+    <div className="mx-auto max-w-5xl px-6 pb-10">
       <h1 className="font-serif text-3xl text-[#292824]">History</h1>
       <p className="mt-2 text-sm text-[#716D63]">Your year in reflection.</p>
 

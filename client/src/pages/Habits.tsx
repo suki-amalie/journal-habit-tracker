@@ -47,7 +47,7 @@ function Habits() {
   }
 
   return (
-    <div className="mx-auto max-w-4xl px-6 py-10">
+    <div className="mx-auto max-w-5xl px-6 py-10">
       <div className="flex items-start justify-between">
         <div>
           <h1 className="font-serif text-3xl text-[#292824]">Habits</h1>

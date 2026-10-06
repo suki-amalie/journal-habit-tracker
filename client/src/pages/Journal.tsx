@@ -23,7 +23,7 @@ function Journal() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl px-6 py-10">
+    <div className="mx-auto max-w-5xl px-6 py-10">
       <h1 className="font-serif text-3xl text-[#292824]">Write</h1>
 
       <p className="mt-2 text-sm text-[#716D63]">

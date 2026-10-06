@@ -8,7 +8,7 @@ function AppLayout() {
       <div className="min-h-screen lg:ml-48">
         <AppHeader />
 
-        <main className="min-h-screen bg-[#f7f3ea]">
+        <main className="min-h-screen  bg-[#f7f3ea]">
           <ErrorBoundary>
             <Outlet />
           </ErrorBoundary>

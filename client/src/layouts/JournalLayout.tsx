@@ -1,3 +1,4 @@
+
 import { NavLink, Outlet } from "react-router-dom";
 
 const tabs = [
@@ -8,16 +9,19 @@ const tabs = [
 function JournalLayout() {
   return (
     <div>
-      <nav aria-label="Journal sections" className="mb-8 flex gap-6 border-b border-[#D8D0C2]">
+      <nav
+        aria-label="Journal sections"
+        className="mb-8 inline-flex rounded-xl border border-[#D8D0C2] bg-[#F3EFE7] p-1"
+      >
         {tabs.map(({ to, label }) => (
           <NavLink
             key={to}
             to={to}
             className={({ isActive }) =>
-              `-mb-px border-b-2 pb-2 text-sm transition-colors ${
+              `rounded-lg px-5 py-2 text-sm font-medium transition-all duration-200 ${
                 isActive
-                  ? "border-[#4F8A47] text-[#292824]"
-                  : "border-transparent text-[#716D63] hover:text-[#292824]"
+                  ? "bg-[#FAF8F3] text-[#292824] shadow-sm"
+                  : "text-[#716D63] hover:text-[#292824]"
               }`
             }
           >
@@ -32,3 +36,4 @@ function JournalLayout() {
 }
 
 export default JournalLayout;
+
