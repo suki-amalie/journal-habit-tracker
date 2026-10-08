@@ -24,7 +24,7 @@ server/   Express API + Prisma schema, migrations and tests
 design/   NEW_DESIGN.md and CODEBASE_GUIDE.md
 ```
 
-New to this stack? Read the [codebase guide](design/CODEBASE_GUIDE.md) for a beginner-friendly tour and how data flows through the app.
+New to this stack? Read the [codebase guide](design/CODEBASE_GUIDE.md) for a beginner-friendly tour and how data flows through the app. Frontend contributors should also read the [frontend guide](design/FRONTEND_GUIDE.md).
 
 ## Data model notes
 
