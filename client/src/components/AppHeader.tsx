@@ -9,10 +9,18 @@ const navItems = [
   { to: "/journal", label: "Journal", icon: PenLine, end: false },
 ];
 
-function AppHeader() {
+interface AppHeaderProps {
+  collapsed?: boolean;
+  onShowShortcuts: () => void;
+}
+
+function AppHeader({ collapsed = false, onShowShortcuts }: AppHeaderProps) {
   return (
     <header
-      className="
+      className={`
+        transition-transform
+        duration-200
+        ${collapsed ? "lg:-translate-x-full" : ""}
         fixed
         inset-y-0
         left-0
@@ -21,7 +29,7 @@ function AppHeader() {
         w-48
         bg-[#5A3E32]
         lg:block
-      "
+      `}
     >
       <div className="flex h-full flex-col px-7 py-8">
         <NavLink to="/" className="group">
@@ -39,7 +47,7 @@ function AppHeader() {
               className={({ isActive }) =>
                 `flex items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-colors ${
                   isActive
-                    ? "bg-[#F7F3EA]/10 text-[#F7F3EA]"
+                    ? "bg-[#F7F3EA]/10 text-[#F7F3EA] shadow-[inset_2px_0_0_#F2B5C8]"
                     : "text-[#D8C8BA] hover:text-[#F7F3EA]"
                 }`
               }
@@ -49,6 +57,15 @@ function AppHeader() {
             </NavLink>
           ))}
         </nav>
+
+        <button
+          type="button"
+          onClick={onShowShortcuts}
+          className="mt-auto flex items-center gap-2 text-xs text-[#D8C8BA] hover:text-[#F7F3EA]"
+        >
+          <kbd className="rounded border border-[#D8C8BA]/40 px-1.5 py-0.5">?</kbd>
+          Shortcuts
+        </button>
       </div>
     </header>
   );

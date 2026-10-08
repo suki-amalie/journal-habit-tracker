@@ -11,6 +11,13 @@ import {
 
 import { HABIT_COLORS } from "./heatmapColors";
 
+/**
+ * Yearly activity grid (GitHub-style). Layout variants:
+ * - default: horizontal weeks with month labels
+ * - `vertical`: twelve mini month grids, good for narrow side panels
+ * - `compact`: smaller cells; `flat`: no outer card chrome
+ * - `monthColumns`: Tailwind grid-cols class for the vertical layout
+ */
 interface ActivityHeatmapProps {
   title: string;
   description: string;
@@ -21,7 +28,13 @@ interface ActivityHeatmapProps {
   onYearChange?: (year: number) => void;
   selectedDate?: string | null;
   onSelectDate?: (date: string) => void;
+  compact?: boolean;
+  vertical?: boolean;
+  flat?: boolean;
+  monthColumns?: string;
 }
+
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 function ActivityHeatmap({
   title,
@@ -33,8 +46,13 @@ function ActivityHeatmap({
   onYearChange,
   selectedDate,
   onSelectDate,
+  compact = false,
+  vertical = false,
+  flat = false,
+  monthColumns = "grid-cols-3",
 }: ActivityHeatmapProps) {
-  const currentYear = Number(getTodayDate().slice(0, 4));
+  const todayDate = getTodayDate();
+  const currentYear = Number(todayDate.slice(0, 4));
   const [year, setYear] = useState(currentYear);
 
   function changeYear(next: number) {
@@ -61,15 +79,15 @@ function ActivityHeatmap({
   const monthPositions = getMonthWeekPositions(year);
 
   return (
-    <section className="rounded-lg border border-[#ddd9d0] bg-[#fffefa] p-6 sm:p-7">
+    <section className={`${flat ? "" : "rounded-lg border border-[#ddd9d0] bg-[#fffefa]"} ${vertical ? "flex h-full flex-col" : ""} ${flat ? "" : compact ? "p-3" : "p-6 sm:p-7"}`}>
       {/* Header */}
-      <div className="mb-6 flex items-center justify-between">
+      <div className={`${compact ? "mb-2" : "mb-6"} flex flex-wrap items-center justify-between gap-1`}>
         <div>
           <h2 className="text-lg font-semibold">
             {title}
           </h2>
 
-          <p className="mt-1 text-sm text-[#57606a]">
+          <p className={`mt-1 text-sm text-[#57606a] ${compact ? "hidden" : ""}`}>
             {description}
           </p>
         </div>
@@ -102,6 +120,60 @@ function ActivityHeatmap({
         </div>
       </div>
 
+      {vertical ? (
+        <div className={`grid gap-x-4 gap-y-3 ${monthColumns}`}>
+          {MONTHS.map((name, i) => {
+            const month = i + 1;
+            const prefix = `${year}-${String(month).padStart(2, "0")}-`;
+            const days = dates.filter((d) => d.startsWith(prefix));
+            const offset = getMondayFirstWeekday(year, month, 1);
+
+            return (
+              <div key={name}>
+                <p className="mb-1 text-[10px] font-medium text-[#57606a]">{name}</p>
+                <div className="grid grid-cols-7 gap-[2px]">
+                  {Array.from({ length: offset }, (_, k) => (
+                    <div key={`o${k}`} className="aspect-square" />
+                  ))}
+                  {days.map((date) => {
+                    const count = countsByDate.get(date) ?? 0;
+                    const intensity = colors[Math.min(count, colors.length - 1)];
+                    const selected = selectedDate === date;
+                    const ring = selected
+                      ? "ring-2 ring-[#292824] ring-offset-1"
+                      : date === todayDate
+                        ? "ring-1 ring-[#8c959f]"
+                        : "";
+
+                    if (onSelectDate && count > 0) {
+                      return (
+                        <button
+                          key={date}
+                          type="button"
+                          title={tooltip(date, count)}
+                          aria-label={tooltip(date, count)}
+                          aria-pressed={selected}
+                          onClick={() => onSelectDate(date)}
+                          className={`aspect-square cursor-pointer rounded-[2px] ${intensity} ${ring || "hover:ring-2 hover:ring-[#8c959f]"}`}
+                        />
+                      );
+                    }
+
+                    return (
+                      <div
+                        key={date}
+                        title={tooltip(date, count)}
+                        className={`aspect-square rounded-[2px] ${intensity} ${ring}`}
+                      />
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      ) : (
+      <>
       {/* Heatmap */}
       <div className="overflow-x-auto">
         <div className="min-w-[850px]">
@@ -200,7 +272,7 @@ function ActivityHeatmap({
           </div>
 
           {/* Legend */}
-          <div className="mt-4 flex items-center justify-end gap-2 text-xs text-[#57606a]">
+          <div className={`${compact ? "mt-2" : "mt-4"} flex items-center justify-end gap-2 text-xs text-[#57606a]`}>
             <span>Less</span>
 
             {colors.map((className) => (
@@ -221,6 +293,15 @@ function ActivityHeatmap({
           </div>
         )}
       </div>
+      </>
+      )}
+      {vertical && footerLink && (
+        <div className="mt-3 text-right">
+          <Link to={footerLink.to} className="text-xs text-[#716f68] hover:text-[#292824]">
+            {footerLink.label} →
+          </Link>
+        </div>
+      )}
     </section>
   );
 }

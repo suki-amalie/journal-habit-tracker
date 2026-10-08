@@ -8,10 +8,11 @@ const tabs = [
 
 function JournalLayout() {
   return (
-    <div>
+    <div className="flex h-dvh flex-col overflow-hidden">
+      <div className="sticky top-0 z-20 shrink-0 bg-[#f7f3ea] px-4 py-3">
       <nav
         aria-label="Journal sections"
-        className="mb-8 inline-flex rounded-xl border border-[#D8D0C2] bg-[#F3EFE7] p-1"
+        className="inline-flex rounded-xl border border-[#D8D0C2] bg-[#F3EFE7] p-1"
       >
         {tabs.map(({ to, label }) => (
           <NavLink
@@ -29,8 +30,11 @@ function JournalLayout() {
           </NavLink>
         ))}
       </nav>
+      </div>
 
-      <Outlet />
+      <div className="min-h-0 flex-1">
+        <Outlet />
+      </div>
     </div>
   );
 }

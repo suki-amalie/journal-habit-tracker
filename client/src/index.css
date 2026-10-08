@@ -1,25 +1,79 @@
 @import "tailwindcss";
 
+/* Hibi Notes palette: brown ink, parchment paper, and three watercolor drops. */
 @theme {
   --font-sans: "DM Sans", sans-serif;
   --font-serif: "DM Serif Display", serif;
   --font-handwriting: "Caveat", cursive;
+
+  --color-paper: #f7f3ea;
+  --color-card: #fffefa;
+  --color-sand: #efe9dc;
+  --color-line: #e6dfd2;
+  --color-ink: #292824;
+  --color-muted: #8a867c;
+  --color-bark: #5a3e32;
+  --color-bark-dark: #4a3228;
+
+  --color-drop-blue: #6b8fc4;
+  --color-drop-green: #4f8a47;
+  --color-drop-pink: #f2b5c8;
+  --color-blush: #fbe6ee;
+  --color-rose-ink: #a64d6c;
 }
 
 :root {
-  font-family: "DM Sans", sans-serif;
-  color: #292824;
-  background: #f7f3ea;
+  font-family: var(--font-sans);
+  color: var(--color-ink);
+  background: var(--color-paper);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
   margin: 0;
   min-width: 320px;
-  background: #f7f3ea;
+  background: var(--color-paper);
 }
 
+::selection {
+  background: var(--color-blush);
+  color: var(--color-rose-ink);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-drop-pink);
+  outline-offset: 2px;
+}
+
+h1,
+h2,
+h3 {
+  text-wrap: balance;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Thin parchment scrollbars everywhere */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #d8d2c6 transparent;
+}
 button,
 input,
 textarea,
@@ -27,24 +81,43 @@ select {
   font: inherit;
 }
 
-@keyframes ink-drop {
+/* Inner scroll area of a journal page: long entries scroll here, not the page */
+.book-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: #d8d2c6 transparent;
+  overscroll-behavior: contain;
+}
+
+/* Sakura petals drifting behind the dashboard greeting (see Petal.tsx) */
+@keyframes petal-drift {
   0% {
-    transform: scale(0.35);
+    transform: translate(0, 0) rotate(0deg);
     opacity: 0;
   }
-  25% {
-    transform: scale(0.75);
-    opacity: 0.9;
-  }
-  60% {
-    transform: scale(1.15);
-    opacity: 0.65;
+  15% {
+    opacity: 0.7;
   }
   100% {
-    transform: scale(1);
-    opacity: 1;
+    transform: translate(40px, 160px) rotate(220deg);
+    opacity: 0;
   }
 }
-.animate-ink-drop {
-  animation: ink-drop 650ms ease-out forwards;
+.petal-drift {
+  animation: petal-drift 10s ease-in-out infinite;
 }
+
+/* Short fade used for route changes and journal page turns */
+@keyframes page-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.animate-page-in {
+  animation: page-in 220ms ease-out both;
+}
+

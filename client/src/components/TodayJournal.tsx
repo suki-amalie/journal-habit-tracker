@@ -1,7 +1,8 @@
 import { Link } from "react-router-dom";
 
 import type { JournalEntry } from "../types/journal";
-import { getExcerpt } from "../utils/journal";
+import { formatTime } from "../utils/journal";
+import MarkdownContent from "./MarkdownContent";
 
 interface TodayJournalProps {
   entries: JournalEntry[];
@@ -15,26 +16,30 @@ function TodayJournal({ entries, loading }: TodayJournalProps) {
   const status = loading
     ? "Loading..."
     : written
-      ? `${entries.length} ${entries.length === 1 ? "entry" : "entries"} today`
+      ? `Written at ${formatTime(latest.createdAt)}`
       : "Nothing written yet today.";
 
   return (
-    <section className="flex flex-col rounded-lg border border-[#ddd9d0] bg-[#fffefa] p-6 sm:p-7">
-      <h2 className="text-lg font-semibold text-[#292824]">Journal</h2>
+    <section className="flex flex-col rounded-2xl border border-[#e6dfd2] bg-[#fffefa] p-5">
+      <h2 className="font-serif text-xl text-[#292824]">Journal</h2>
+      <p className="mt-0.5 text-sm text-[#8a867c]">{status}</p>
 
-      <p className="mt-1 text-sm text-[#716f68]">{status}</p>
-
-      {written && (
-        <p className="mt-4 text-sm leading-6 text-[#292824]">
-          “{getExcerpt(latest.content)}”
-        </p>
+      {!loading && !written && (
+        <p className="mt-4 font-handwriting text-xl text-[#8a867c]">A blank page. Begin whenever you're ready.</p>
       )}
 
-      <Link
-        to="/journal/write"
-        className="mt-auto pt-6 text-right text-sm text-[#716f68] hover:text-[#292824]"
-      >
-        {written ? "Write another" : "Write today"} →
+      {written && (
+        <div className="relative mt-4 max-h-36 overflow-hidden text-sm">
+          <MarkdownContent content={latest.content} />
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-[#fffefa] to-transparent"
+          />
+        </div>
+      )}
+
+      <Link to="/journal/write" className="mt-auto pt-5 text-sm text-[#8a867c] hover:text-[#292824]">
+        {written ? "Write more" : "Write today"} →
       </Link>
     </section>
   );

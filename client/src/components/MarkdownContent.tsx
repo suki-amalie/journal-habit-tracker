@@ -17,7 +17,7 @@ const components: Components = {
   ),
   pre: (props) => (
     <pre
-      className="my-3 overflow-x-auto rounded-md bg-[#f3f1ea] p-3 text-sm [&_code]:bg-transparent [&_code]:p-0"
+className="my-3 overflow-x-auto rounded-md bg-[#f3f1ea] p-3 text-sm [&_code]:bg-transparent [&_code]:p-0"
       {...props}
     />
   ),
@@ -43,7 +43,7 @@ const components: Components = {
     <img
       alt={alt ?? ""}
       loading="lazy"
-      className="my-3 max-h-96 max-w-full rounded-md"
+      className="my-3 max-w-full rounded-md object-contain"
       {...props}
     />
   ),

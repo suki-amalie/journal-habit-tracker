@@ -73,7 +73,7 @@ function AddHabitModal({
               text-sm
               text-[#292824]
               outline-none
-              focus:border-[#4F8A47]
+              focus:border-[#5A3E32]
             "
           />
 
@@ -106,7 +106,7 @@ function AddHabitModal({
               text-sm
               text-[#292824]
               outline-none
-              focus:border-[#4F8A47]
+              focus:border-[#5A3E32]
             "
           />
 
@@ -124,7 +124,7 @@ function AddHabitModal({
               disabled={!name.trim()}
               className="
                 rounded-md
-                bg-[#4F8A47]
+                bg-[#5A3E32]
                 px-4
                 py-2
                 text-sm

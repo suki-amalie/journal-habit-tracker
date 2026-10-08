@@ -1,5 +1,7 @@
-// InkDrops.tsx
-
+/**
+ * Hand-painted watercolor ink drops - the Hibi Notes brand motif.
+ * Blue = reflection, green = action, pink = encouragement.
+ */
 interface InkDropProps {
   color: string;
   size?: number | string;
@@ -7,6 +9,7 @@ interface InkDropProps {
   className?: string;
 }
 
+/** Slightly different blob outlines so repeated drops never look identical. */
 const paths = {
   1: {
     outer:
@@ -30,6 +33,7 @@ const paths = {
   },
 } as const;
 
+/** A single watercolor drop tinted by `color` (uses currentColor internally). */
 export function InkDrop({
   color,
   size = 16,
@@ -114,6 +118,7 @@ interface InkDropGroupProps {
   className?: string;
 }
 
+/** The blue/green/pink trio used in the header logo and empty states. */
 export function InkDropGroup({
   size = 16,
   gap = "gap-1",
@@ -122,7 +127,7 @@ export function InkDropGroup({
   const brandColors = [
     "#6B8FC4", // reflection
     "#4F8A47", // action
-    "#D98B9B", // encouragement
+    "#F2B5C8", // encouragement
   ];
 
   return (
@@ -139,83 +144,5 @@ export function InkDropGroup({
         />
       ))}
     </div>
-  );
-}
-
-export function GreenInkDrop({
-  size = 16,
-  className = "",
-}: {
-  size?: number | string;
-  className?: string;
-}) {
-  return (
-    <InkDrop
-      color="#4F8A47"
-      variant={2}
-      size={size}
-      className={className}
-    />
-  );
-}
-
-export function PinkInkDrop({
-  size = 16,
-  className = "",
-}: {
-  size?: number | string;
-  className?: string;
-}) {
-  return (
-    <InkDrop
-      color="#D98B9B"
-      variant={3}
-      size={size}
-      className={className}
-    />
-  );
-}
-
-export function BlueInkDrop({
-  size = 16,
-  className = "",
-}: {
-  size?: number | string;
-  className?: string;
-}) {
-  return (
-    <InkDrop
-      color="#6B8FC4"
-      variant={1}
-      size={size}
-      className={className}
-    />
-  );
-}
-
-// InkDrops.tsx
-
-interface InkDropProps {
-  color: string;
-  size?: number | string;
-  variant?: 1 | 2 | 3;
-  className?: string;
-  animate?: boolean;
-}
-
-interface InkBloomProps {
-  active: boolean;
-}
-
-export function InkBloom({ active }: InkBloomProps) {
-  if (!active) return null;
-
-  return (
-    <span
-      className="pointer-events-none absolute inset-0 flex items-center justify-center"
-      aria-hidden="true"
-    >
-      <span className="ink-bloom-ring" />
-    </span>
   );
 }

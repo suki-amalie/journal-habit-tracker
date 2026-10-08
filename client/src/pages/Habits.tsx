@@ -2,8 +2,10 @@ import { useState } from "react";
 
 import AddHabitModal from "../components/AddHabitModal";
 import ConfirmDialog from "../components/ConfirmDialog";
+import EmptyState from "../components/EmptyState";
 import HabitRow from "../components/HabitRow";
 import { useHabits } from "../hooks/useHabits";
+import { useHotkey } from "../hooks/useHotkey";
 import { useToast } from "../hooks/useToast";
 import { useHabitCompletions } from "../hooks/useHabitsCompletions";
 import type { Habit } from "../types/habit";
@@ -21,7 +23,7 @@ function Habits() {
 
   const [tab, setTab] = useState<Tab>("active");
   const [search, setSearch] = useState("");
-  const [expandedId, setExpandedId] = useState<number | null>(null);
+  const [expandedIds, setExpandedIds] = useState<Set<number>>(new Set());
   const [adding, setAdding] = useState(false);
   const [editing, setEditing] = useState<Habit | null>(null);
   const [deleting, setDeleting] = useState<Habit | null>(null);
@@ -29,6 +31,13 @@ function Habits() {
 
   const error = habitsError ?? completionsError;
   const query = search.trim().toLowerCase();
+
+  // "E" opens every heatmap, or closes them all if any are already open.
+  useHotkey("e", () =>
+    setExpandedIds((current) =>
+      current.size > 0 ? new Set() : new Set(habits.map((habit) => habit.id)),
+    ),
+  );
 
   const visible = habits.filter(
     (habit) =>
@@ -46,22 +55,27 @@ function Habits() {
     });
   }
 
+  const activeCount = habits.filter((h) => h.archivedAt === null).length;
+  const doneCount = habits.filter((h) => h.archivedAt === null && completedHabitIds.has(h.id)).length;
+
   return (
-    <div className="mx-auto max-w-5xl px-6 py-10">
-      <div className="flex items-start justify-between">
+    <div className="mx-auto max-w-6xl px-6 py-8 lg:px-10">
+      <div className="flex items-end justify-between gap-4">
         <div>
           <h1 className="font-serif text-3xl text-[#292824]">Habits</h1>
-          <p className="mt-2 text-sm text-[#716D63]">
-            Build consistency, one day at a time.
+          <p className="mt-1 text-sm text-[#8a867c]">
+            {activeCount === 0
+              ? "Build consistency, one day at a time."
+              : `${doneCount} of ${activeCount} done today`}
           </p>
         </div>
 
         <button
           type="button"
           onClick={() => setAdding(true)}
-          className="rounded-md bg-[#4F8A47] px-4 py-2 text-sm font-medium text-white"
+          className="rounded-full bg-[#5A3E32] px-5 py-2 text-sm font-medium text-[#F7F3EA] transition-colors hover:bg-[#4a3228]"
         >
-          + Add habit
+          + New habit
         </button>
       </div>
 
@@ -71,17 +85,17 @@ function Habits() {
         </p>
       )}
 
-      <div className="mt-8 flex items-center justify-between gap-4">
-        <div className="flex gap-4 text-sm">
+      <div className="mt-6 flex items-center justify-between gap-4">
+        <div className="inline-flex rounded-full bg-[#efe9dc] p-0.5 text-sm">
           {(["active", "archived"] as const).map((value) => (
             <button
               key={value}
               type="button"
               onClick={() => setTab(value)}
-              className={`-mb-px border-b-2 pb-2 capitalize ${
+              className={`rounded-full px-4 py-1 capitalize transition-colors ${
                 tab === value
-                  ? "border-[#292824] text-[#292824]"
-                  : "border-transparent text-[#716d63]"
+                  ? "bg-[#fffefa] text-[#292824] shadow-sm"
+                  : "text-[#8a867c] hover:text-[#292824]"
               }`}
             >
               {value}
@@ -95,22 +109,19 @@ function Habits() {
           onChange={(event) => setSearch(event.target.value)}
           placeholder="Search habits"
           aria-label="Search habits"
-          className="w-48 rounded-md border border-[#ddd9d0] bg-[#fffefa] px-3 py-1.5 text-sm outline-none focus:border-[#4F8A47]"
+          className="w-52 rounded-full border border-[#e6dfd2] bg-[#fffefa] px-4 py-1.5 text-sm outline-none focus:border-[#5A3E32]"
         />
       </div>
 
       {loading ? (
-        <p className="mt-6 text-sm text-[#716d63]">Loading...</p>
+        <p className="mt-6 text-sm text-[#8a867c]">Loading...</p>
       ) : visible.length === 0 ? (
-        <p className="mt-6 text-sm text-[#716d63]">
-          {query
-            ? "No habits match your search."
-            : tab === "active"
-              ? "No active habits yet. Add one to get started."
-              : "No archived habits."}
-        </p>
+        <EmptyState
+          title={query ? "Nothing matches." : tab === "active" ? "A blank page." : "Nothing archived."}
+          hint={query ? "Try a different search." : tab === "active" ? "Begin whenever you're ready." : undefined}
+        />
       ) : (
-        <ul className="mt-4 space-y-2">
+        <ul className="mt-5 space-y-3">
           {visible.map((habit) => (
             <HabitRow
               key={habit.id}
@@ -118,9 +129,13 @@ function Habits() {
               completions={completions[habit.id] ?? []}
               today={today}
               completedToday={completedHabitIds.has(habit.id)}
-              expanded={expandedId === habit.id}
+              expanded={expandedIds.has(habit.id)}
               onToggleExpanded={() =>
-                setExpandedId((current) => (current === habit.id ? null : habit.id))
+                setExpandedIds((current) => {
+                  const next = new Set(current);
+                  if (!next.delete(habit.id)) next.add(habit.id);
+                  return next;
+                })
               }
               onToggleCompletion={() => toggleHabit(habit)}
               onEdit={() => setEditing(habit)}
@@ -130,7 +145,6 @@ function Habits() {
           ))}
         </ul>
       )}
-
       {adding && (
         <AddHabitModal
           onClose={() => setAdding(false)}

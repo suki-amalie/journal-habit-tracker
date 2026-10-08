@@ -1,29 +1,21 @@
-import { useMemo, useState } from "react";
+import { PanelRightClose, PanelRightOpen } from "lucide-react";
+import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
 import ActivityHeatmap from "../components/ActivityHeatmap";
+import JournalDayBook from "../components/JournalDayBook";
 import { JOURNAL_COLORS } from "../components/heatmapColors";
-import JournalEntryCard from "../components/JournalEntryCard";
+import { useHotkey } from "../hooks/useHotkey";
+import { usePersistentToggle } from "../hooks/usePersistentToggle";
 import { useJournalActivity } from "../hooks/useJournalActivity";
 import { useJournalEntries } from "../hooks/useJournalEntries";
 import { getTodayDate } from "../utils/date";
 
-function formatLongDate(date: string): string {
-  const [year, month, day] = date.split("-").map(Number);
-
-  return new Date(year, month - 1, day).toLocaleDateString("en-US", {
-    month: "long",
-    day: "numeric",
-    year: "numeric",
-  });
-}
-
 function JournalHistory() {
   const today = getTodayDate();
   const [searchParams] = useSearchParams();
-
-  // Only same-year dates are accepted: the heatmap opens on the current year.
   const requested = searchParams.get("date");
+
   const initialDate =
     requested !== null &&
     /^\d{4}-\d{2}-\d{2}$/.test(requested) &&
@@ -35,67 +27,93 @@ function JournalHistory() {
   const [year, setYear] = useState(Number(today.slice(0, 4)));
   const [selectedDate, setSelectedDate] = useState(initialDate);
 
+  const [calendarHidden, toggleCalendar] = usePersistentToggle("journal:calendar-hidden");
+  useHotkey("c", toggleCalendar);
   const { countsByDate, error: activityError } = useJournalActivity(year);
   const { entries, loading, error, editEntry, removeEntry } =
     useJournalEntries(selectedDate);
 
-  // Keep the selected day's cell in sync after edits/deletes without refetching.
-  const heatmapCounts = useMemo(() => {
-    const counts = new Map(countsByDate);
-
-    if (!loading && selectedDate.startsWith(String(year))) {
-      if (entries.length > 0) counts.set(selectedDate, entries.length);
-      else counts.delete(selectedDate);
-    }
-
-    return counts;
-  }, [countsByDate, entries, loading, selectedDate, year]);
-
   return (
-    <div className="mx-auto max-w-5xl px-6 pb-10">
-      <h1 className="font-serif text-3xl text-[#292824]">History</h1>
-      <p className="mt-2 text-sm text-[#716D63]">Your year in reflection.</p>
-
-      <div className="mt-8">
-        <ActivityHeatmap
-          title="Journal activity"
-          description="Select a day to read what you wrote"
-          countsByDate={heatmapCounts}
-          colors={JOURNAL_COLORS}
-          tooltip={(date, count) =>
-            `${date}: ${count} journal ${count === 1 ? "entry" : "entries"}`
-          }
-          onYearChange={setYear}
-          selectedDate={selectedDate}
-          onSelectDate={(date) => {
-            setSelectedDate(date);
-          }}
-        />
-      </div>
-
+    <div className="mx-auto flex h-full max-w-[1800px] flex-col px-4 pb-4 xl:px-8">
       {(activityError || error) && (
-        <p role="alert" className="mt-6 rounded-md border border-[#d8b8b3] bg-[#fbf5f3] px-4 py-3 text-sm text-[#76534d]">
+        <p
+          role="alert"
+          className="mb-2 shrink-0 rounded-md border border-[#d8b8b3] bg-[#fbf5f3] px-4 py-2 text-sm text-[#76534d]"
+        >
           {activityError ?? error}
         </p>
       )}
 
-      <h2 className="mt-10 text-lg font-semibold text-[#292824]">
-        {formatLongDate(selectedDate)}
-      </h2>
+      <div className="mb-3 flex shrink-0 items-end justify-between gap-3 px-1">
+        <div>
+          <h2 className="font-serif text-2xl leading-tight text-[#292824]">
+            {new Date(`${selectedDate}T00:00:00`).toLocaleDateString("en-US", {
+              weekday: "long",
+              month: "long",
+              day: "numeric",
+              year: "numeric",
+            })}
+          </h2>
+          <p className="mt-0.5 text-xs text-[#aaa49a]">
+            {loading
+              ? "Loading..."
+              : `${entries.length} ${entries.length === 1 ? "entry" : "entries"}`}
+          </p>
+        </div>
 
-      {loading ? (
-        <p className="mt-3 text-sm text-[#716f68]">Loading...</p>
-      ) : entries.length === 0 ? (
-        <p className="mt-3 text-sm text-[#716f68]">No entries on this day.</p>
-      ) : (
-        <ul className="mt-4 space-y-3">
-          {entries.map((entry) => (
-            <JournalEntryCard key={entry.id} entry={entry} onEdit={editEntry} onDelete={removeEntry} />
-          ))}
-        </ul>
-      )}
+        <div className="flex items-center gap-2">
+          {selectedDate !== today && (
+            <button
+              type="button"
+              onClick={() => setSelectedDate(today)}
+              className="rounded-full border border-[#d8d2c6] bg-[#fffefa] px-3 py-1 text-xs text-[#716d63] shadow-sm transition-colors hover:text-[#292824]"
+            >
+              Back to today
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={toggleCalendar}
+            aria-label={calendarHidden ? "Show activity calendar (C)" : "Hide activity calendar (C)"}
+            title={calendarHidden ? "Show activity calendar (C)" : "Hide activity calendar (C)"}
+            className="rounded-full border border-[#d8d2c6] bg-[#fffefa] p-1.5 text-[#716d63] shadow-sm transition-colors hover:text-[#292824]"
+          >
+            {calendarHidden ? <PanelRightOpen size={16} /> : <PanelRightClose size={16} />}
+          </button>
+        </div>
+      </div>
+
+      <div className="flex min-h-0 flex-1 gap-4">
+        <div className="relative min-h-0 min-w-0 flex-1">
+          {loading && (
+            <div className="absolute inset-0 z-10 flex items-center justify-center bg-[#fffefa]/70 backdrop-blur-[1px]">
+              <p className="text-sm text-[#716f68]">Loading...</p>
+            </div>
+          )}
+
+          <JournalDayBook entries={entries} onEdit={editEntry} onDelete={removeEntry} />
+        </div>
+
+        {!calendarHidden && (
+          <aside className="w-64 shrink-0 self-start xl:w-72">
+            <ActivityHeatmap
+              compact
+              vertical
+              title="Journal activity"
+              description="Select a day to read what you wrote"
+              countsByDate={countsByDate}
+              colors={JOURNAL_COLORS}
+              tooltip={(date, count) =>
+                `${date}: ${count} journal ${count === 1 ? "entry" : "entries"}`
+              }
+              onYearChange={setYear}
+              selectedDate={selectedDate}
+              onSelectDate={setSelectedDate}
+            />
+          </aside>
+        )}
+      </div>
     </div>
   );
 }
-
 export default JournalHistory;

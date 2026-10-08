@@ -1,73 +1,91 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-import JournalEntryCard from "../components/JournalEntryCard";
-import MarkdownEditor from "../components/MarkdownEditor";
+import JournalDayBook from "../components/JournalDayBook";
+import NewEntryModal from "../components/EntryModal";
 import { useDraft } from "../hooks/useDraft";
 import { useJournalEntries } from "../hooks/useJournalEntries";
 import { getTodayDate } from "../utils/date";
 
 function Journal() {
   const today = getTodayDate();
-  const { entries, loading, error, addEntry, editEntry, removeEntry } = useJournalEntries(today);
+  const todayEntries = useJournalEntries(today);
+
   const [content, setContent] = useDraft("journal:new-entry-draft");
   const [saving, setSaving] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
 
   async function handleSave() {
     if (saving || content.trim() === "") return;
 
     setSaving(true);
-    const saved = await addEntry(content.trim());
+    const saved = await todayEntries.addEntry(content.trim());
     setSaving(false);
 
-    if (saved) setContent("");
+    if (saved) {
+      setContent("");
+      setModalOpen(false);
+    }
   }
 
+  // Press N anywhere (outside a text field) to start writing
+  useEffect(() => {
+    function handleKey(e: KeyboardEvent) {
+      if (e.key.toLowerCase() !== "n" || e.ctrlKey || e.metaKey || e.altKey) return;
+      if ((e.target as HTMLElement).closest("input, textarea, [contenteditable='true']")) return;
+
+      e.preventDefault();
+      setModalOpen(true);
+    }
+
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, []);
+
+  const hasDraft = content.trim() !== "";
+
+  const writeLine = (
+    <button
+      type="button"
+      onClick={() => setModalOpen(true)}
+      className="mt-2 w-full border-t border-dashed border-[#d8d2c6] py-5 text-left font-handwriting text-2xl text-[#aaa49a] hover:text-[#5A3E32]"
+    >
+      {hasDraft ? "Continue your draft..." : "Write something..."}
+    </button>
+  );
+
   return (
-    <div className="mx-auto max-w-5xl px-6 py-10">
-      <h1 className="font-serif text-3xl text-[#292824]">Write</h1>
+    <div className="mx-auto flex h-full max-w-7xl flex-col px-4 pb-4">
+      <div className="mb-3 flex shrink-0 items-baseline justify-between">
+        <h1 className="font-serif text-3xl text-[#292824]">Write</h1>
+        <p className="text-sm text-[#716D63]">
+          {new Date().toLocaleDateString("en-US", {
+            weekday: "long",
+            month: "long",
+            day: "numeric",
+          })}
+        </p>
+      </div>
 
-      <p className="mt-2 text-sm text-[#716D63]">
-        Capture what's on your mind, as often as you like.
-      </p>
-
-      <div className="mt-8">
-        <MarkdownEditor
-          value={content}
-          onChange={setContent}
-          onSubmit={handleSave}
-          placeholder="What's on your mind?"
+      <div className="min-h-0 flex-1">
+        <JournalDayBook
+          entries={todayEntries.entries}
+          onEdit={todayEntries.editEntry}
+          onDelete={todayEntries.removeEntry}
+          footer={writeLine}
+          startAtEnd
         />
       </div>
 
-      <div className="mt-3 flex items-center justify-end gap-4">
-        <span className="text-xs text-[#716d63]">
-          Draft saved automatically · Ctrl+Enter to save
-        </span>
-        <button
-          type="button"
-          onClick={handleSave}
-          disabled={saving || content.trim() === ""}
-          className="rounded-md bg-[#292824] px-4 py-2 text-sm text-white disabled:opacity-50"
-        >
-          {saving ? "Saving..." : "Save entry"}
-        </button>
-      </div>
-
-      {error && <p className="mt-4 text-sm text-red-700">{error}</p>}
-
-      <h2 className="mt-10 text-lg font-semibold text-[#292824]">Today</h2>
-
-      {loading ? (
-        <p className="mt-3 text-sm text-[#716f68]">Loading...</p>
-      ) : entries.length === 0 ? (
-        <p className="mt-3 text-sm text-[#716f68]">No entries yet today.</p>
-      ) : (
-        <ul className="mt-3 space-y-3">
-          {[...entries].reverse().map((entry) => (
-            <JournalEntryCard key={entry.id} entry={entry} onEdit={editEntry} onDelete={removeEntry} />
-          ))}
-        </ul>
-      )}
+      <NewEntryModal
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        content={content}
+        onChange={setContent}
+        onSave={handleSave}
+        saving={saving}
+        error={todayEntries.error}
+        title="New Journal Entry"
+      />
     </div>
   );
 }
