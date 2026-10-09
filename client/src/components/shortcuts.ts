@@ -14,4 +14,5 @@ export const SHORTCUTS = [
   { keys: ["Esc"], description: "Close a dialog", scope: "Dialogs" },
   { keys: ["N"], description: "Write a new journal", scope: "Journal write page"},
   { keys: ["+"], description: "Add a new habit", scope: "Habit page"},
+  { keys: ["A"], description: "Toggle between active and archived habits page", scope: "Habit page"},
 ] as const;

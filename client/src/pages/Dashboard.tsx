@@ -8,7 +8,10 @@ import TodayHabits from "../components/TodayHabits";
 import TodayJournal from "../components/TodayJournal";
 
 import { useHabits } from "../hooks/useHabits";
-import { useHabitCompletions, useHabitCompletionsForYear } from "../hooks/useHabitsCompletions";
+import {
+  useHabitCompletions,
+  useHabitCompletionsForYear,
+} from "../hooks/useHabitsCompletions";
 import { useJournalActivity } from "../hooks/useJournalActivity";
 import { useJournalEntries } from "../hooks/useJournalEntries";
 import { useHotkey } from "../hooks/useHotkey";
@@ -49,8 +52,11 @@ function Dashboard() {
   const [journalYear, setJournalYear] = useState(currentYear);
 
   const { habits, loading, error: habitsError } = useHabits("all");
-  const { completions: recentCompletions, completedHabitIds, error: completionsError } =
-    useHabitCompletions(habits);
+  const {
+    completions: recentCompletions,
+    completedHabitIds,
+    error: completionsError,
+  } = useHabitCompletions(habits);
   const pastCompletions = useHabitCompletionsForYear(
     habitYear,
     habitYear !== currentYear,
@@ -117,18 +123,28 @@ function Dashboard() {
       </header>
 
       {error && (
-        <p role="alert" className="mt-8 rounded-md border border-[#d8b8b3] bg-[#fbf5f3] px-4 py-3 text-sm text-[#76534d]">
+        <p
+          role="alert"
+          className="mt-8 rounded-md border border-[#d8b8b3] bg-[#fbf5f3] px-4 py-3 text-sm text-[#76534d]"
+        >
           {error}
         </p>
       )}
 
       <div className="mt-8 grid gap-5 md:grid-cols-[2fr_3fr]">
-        <TodayHabits habits={activeHabits} completedHabitIds={completedHabitIds} />
+        <TodayHabits
+          habits={activeHabits}
+          completedHabitIds={completedHabitIds}
+        />
         <TodayJournal entries={entries} loading={entriesLoading} />
       </div>
 
       <section className="mt-8 rounded-2xl border border-[#e6dfd2] bg-[#fffefa] p-5">
-        <div className="mb-4 inline-flex rounded-full bg-[#f7f3ea] p-0.5 text-sm" role="tablist" aria-label="Activity">
+        <div
+          className="mb-4 inline-flex rounded-full bg-[#efe9dc] p-0.5 text-sm"
+          role="tablist"
+          aria-label="Activity"
+        >
           {(["habits", "journal"] as const).map((key) => (
             <button
               key={key}
@@ -139,7 +155,7 @@ function Dashboard() {
               title="Switch activity view (T)"
               className={`rounded-full px-4 py-1 capitalize transition-colors ${
                 view === key
-                  ? "bg-[#dce7f5] text-[#3f5f94]"
+                  ? "bg-[#fffefa] text-[#292824] shadow-sm"
                   : "text-[#8a867c] hover:text-[#292824]"
               }`}
             >
@@ -168,7 +184,12 @@ function Dashboard() {
                 <h3 className="text-sm font-medium text-[#292824]">
                   {new Date(`${selectedDate}T00:00:00`).toLocaleDateString(
                     "en-US",
-                    { weekday: "long", month: "long", day: "numeric", year: "numeric" },
+                    {
+                      weekday: "long",
+                      month: "long",
+                      day: "numeric",
+                      year: "numeric",
+                    },
                   )}
                 </h3>
                 <ul className="mt-2 space-y-1 text-sm text-[#292824]">
@@ -180,7 +201,9 @@ function Dashboard() {
                       <span className="text-[#4F8A47]">✓</span>
                       {habit.name}
                       {habit.archivedAt !== null && (
-                        <span className="text-xs text-[#716d63]">(archived)</span>
+                        <span className="text-xs text-[#716d63]">
+                          (archived)
+                        </span>
                       )}
                     </li>
                   ))}
@@ -190,7 +213,7 @@ function Dashboard() {
           </>
         ) : (
           <ActivityHeatmap
-              {...DASHBOARD_HEATMAP}
+            {...DASHBOARD_HEATMAP}
             title="Journal activity"
             description=""
             countsByDate={journalCountsByDate}

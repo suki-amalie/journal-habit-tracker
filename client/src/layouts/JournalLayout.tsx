@@ -22,17 +22,17 @@ function JournalLayout() {
 
       <nav
         aria-label="Journal sections"
-        className="inline-flex rounded-xl border border-[#D8D0C2] bg-[#F3EFE7] p-1"
+        className="inline-flex rounded-full bg-[#efe9dc] p-1"
       >
         {tabs.map(({ to, label }) => (
           <NavLink
             key={to}
             to={to}
             className={({ isActive }) =>
-              `rounded-lg px-5 py-2 text-sm font-medium transition-all duration-200 ${
+              `rounded-full px-5 py-2 text-sm font-medium transition-colors duration-200 ${
                 isActive
-                  ? "bg-[#FAF8F3] text-[#292824] shadow-sm"
-                  : "text-[#716D63] hover:text-[#292824]"
+                  ? "bg-[#fffefa] text-[#292824] shadow-sm"
+                  : "text-[#8a867c] hover:text-[#292824]"
               }`
             }
           >
