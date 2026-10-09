@@ -48,6 +48,11 @@ function Habits() {
     ),
   );
 
+  // "+" open create new habit modal
+  useHotkey("+", () => {
+    setAdding(true);
+  })
+
   const visible = habits.filter(
     (habit) =>
       (habit.archivedAt === null) === (tab === "active") &&

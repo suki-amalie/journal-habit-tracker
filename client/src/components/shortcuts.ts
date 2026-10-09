@@ -12,5 +12,6 @@ export const SHORTCUTS = [
   { keys: ["E"], description: "Expand or collapse all habit heatmaps", scope: "Habits" },
   { keys: ["Ctrl", "Enter"], description: "Save the entry being edited", scope: "Editor" },
   { keys: ["Esc"], description: "Close a dialog", scope: "Dialogs" },
-  { keys: ["N"], description: "Write a new journal", scope: "Journal write page"}
+  { keys: ["N"], description: "Write a new journal", scope: "Journal write page"},
+  { keys: ["+"], description: "Add a new habit", scope: "Habit page"},
 ] as const;

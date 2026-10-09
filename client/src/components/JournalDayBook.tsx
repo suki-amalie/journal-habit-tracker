@@ -136,7 +136,7 @@ function NavButton({
           : "right-0 rounded-l-lg bg-[#F2B5C8] text-[#a64d6c] hover:w-8 hover:bg-[#ee9fb7]"
       }`}
     >
-      <span className="transition-transform group-hover:scale-125">{prev ? "‹" : "›"}</span>
+      <span className="transition-transform group-hover:scale-125">{prev ? "<" : ">"}</span>
     </button>
   );
 }

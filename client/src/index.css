@@ -46,10 +46,7 @@ body {
   color: #3f5f94;
 }
 
-:focus-visible {
-  outline: 2px solid var(--color-drop-blue);
-  outline-offset: 2px;
-}
+
 
 h1,
 h2,
