@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 
 interface AddHabitModalProps {
   onClose: () => void;
@@ -19,6 +19,7 @@ function AddHabitModal({
 }: AddHabitModalProps) {
   const [name, setName] = useState(initialName);
   const [description, setDescription] = useState(initialDescription);
+  const formRef = useRef<HTMLFormElement>(null);
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -27,10 +28,21 @@ function AddHabitModal({
 
     if (!trimmedName) return;
 
-    onAdd(
-      trimmedName,
-      description.trim() || null,
-    );
+    onAdd(trimmedName, description.trim() || null);
+  }
+
+  function handleKeyDown(event: React.KeyboardEvent<HTMLDivElement>) {
+    if (event.key === "Escape") {
+      event.preventDefault();
+      event.stopPropagation();
+      onClose();
+      return;
+    }
+
+    if (event.key === "Enter" && (event.ctrlKey || event.metaKey)) {
+      event.preventDefault();
+      formRef.current?.requestSubmit();
+    }
   }
 
   return (
@@ -41,16 +53,12 @@ function AddHabitModal({
       <div
         className="w-full max-w-md rounded-lg border border-[#D8D0C2] bg-[#FFFCF5] p-6"
         onMouseDown={(event) => event.stopPropagation()}
+        onKeyDown={handleKeyDown}
       >
-        <h2 className="text-xl font-semibold text-[#292824]">
-          {title}
-        </h2>
+        <h2 className="text-xl font-semibold text-[#292824]">{title}</h2>
 
-        <form onSubmit={handleSubmit} className="mt-6">
-          <label
-            htmlFor="habit-name"
-            className="text-sm text-[#716D63]"
-          >
+        <form ref={formRef} onSubmit={handleSubmit} className="mt-6">
+          <label htmlFor="habit-name" className="text-sm text-[#716D63]">
             Habit name
           </label>
 
@@ -82,9 +90,7 @@ function AddHabitModal({
             className="mt-5 block text-sm text-[#716D63]"
           >
             Description
-            <span className="ml-1 text-[#AAA69D]">
-              (optional)
-            </span>
+            <span className="ml-1 text-[#AAA69D]">(optional)</span>
           </label>
 
           <textarea
