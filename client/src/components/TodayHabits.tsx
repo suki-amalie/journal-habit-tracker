@@ -10,6 +10,7 @@ interface TodayHabitsProps {
 
 function TodayHabits({ habits, completedHabitIds, maxItems = 5 }: TodayHabitsProps) {
   const done = habits.filter((habit) => completedHabitIds.has(habit.id)).length;
+  const remaining = habits.length - done;
 
   return (
     <section className="flex flex-col rounded-2xl border border-[#e6dfd2] bg-[#fffefa] p-5">
@@ -17,6 +18,22 @@ function TodayHabits({ habits, completedHabitIds, maxItems = 5 }: TodayHabitsPro
       <p className="mt-0.5 text-sm text-[#8a867c]">
         {habits.length === 0 ? "No habits yet." : `${done} of ${habits.length} today`}
       </p>
+
+      {habits.length > 0 && (
+        <div
+          role="progressbar"
+          aria-label="Today's habit completion"
+          aria-valuemin={0}
+          aria-valuemax={habits.length}
+          aria-valuenow={done}
+          className="mt-3 h-1.5 overflow-hidden rounded-full bg-[#efe9dc]"
+        >
+          <div
+            className="h-full rounded-full bg-[#778a68] transition-[width]"
+            style={{ width: `${(done / habits.length) * 100}%` }}
+          />
+        </div>
+      )}
 
       {habits.length === 0 && (
         <p className="mt-4 font-handwriting text-xl text-[#8a867c]">A blank page. Begin whenever you're ready.</p>
@@ -43,8 +60,21 @@ function TodayHabits({ habits, completedHabitIds, maxItems = 5 }: TodayHabitsPro
         })}
       </ul>
 
-      <Link to="/habits" className="mt-auto pt-5 text-sm text-[#8a867c] hover:text-[#292824]">
-        View habits →
+      {habits.length > maxItems && (
+        <p className="mt-3 text-xs text-[#8a867c]">
+          And {habits.length - maxItems} more to tend to.
+        </p>
+      )}
+      {habits.length > 0 && (
+        <p className="mt-3 text-xs text-[#8a867c]">
+          {remaining === 0
+            ? "Everything tended to today."
+            : `${remaining} ${remaining === 1 ? "habit" : "habits"} left for today.`}
+        </p>
+      )}
+
+      <Link to="/habits" className="mt-auto pt-5 text-sm text-[#5a3e32] hover:text-[#8b5d70]">
+        Review today&apos;s habits →
       </Link>
     </section>
   );

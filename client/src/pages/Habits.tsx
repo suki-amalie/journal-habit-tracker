@@ -10,16 +10,25 @@ import { useToast } from "../hooks/useToast";
 import { useHabitCompletions } from "../hooks/useHabitsCompletions";
 import type { Habit } from "../types/habit";
 import { getTodayDate } from "../utils/date";
-
 type Tab = "active" | "archived";
 
 function Habits() {
   const today = getTodayDate();
 
-  const { habits, loading, error: habitsError, addHabit, editHabit, removeHabit } =
-    useHabits("all");
-  const { completions, completedHabitIds, error: completionsError, toggleHabit } =
-    useHabitCompletions(habits);
+  const {
+    habits,
+    loading,
+    error: habitsError,
+    addHabit,
+    editHabit,
+    removeHabit,
+  } = useHabits("all");
+  const {
+    completions,
+    completedHabitIds,
+    error: completionsError,
+    toggleHabit,
+  } = useHabitCompletions(habits);
 
   const [tab, setTab] = useState<Tab>("active");
   const [search, setSearch] = useState("");
@@ -50,19 +59,26 @@ function Habits() {
 
     await editHabit(habit.id, { archived: archiving });
     toast.show({
-      message: archiving ? `Archived "${habit.name}"` : `Restored "${habit.name}"`,
+      message: archiving
+        ? `Archived "${habit.name}"`
+        : `Restored "${habit.name}"`,
       onUndo: () => void editHabit(habit.id, { archived: !archiving }),
     });
   }
 
   const activeCount = habits.filter((h) => h.archivedAt === null).length;
-  const doneCount = habits.filter((h) => h.archivedAt === null && completedHabitIds.has(h.id)).length;
+  const doneCount = habits.filter(
+    (h) => h.archivedAt === null && completedHabitIds.has(h.id),
+  ).length;
 
   return (
     <div className="mx-auto max-w-6xl px-6 py-8 lg:px-10">
       <div className="flex items-end justify-between gap-4">
         <div>
-          <h1 className="font-serif text-3xl text-[#292824]">Habits</h1>
+          <h1 className="font-serif text-3xl text-[#292824]">
+            Habits
+            <span className="text-drop-green">.</span>
+          </h1>
           <p className="mt-1 text-sm text-[#8a867c]">
             {activeCount === 0
               ? "Build consistency, one day at a time."
@@ -80,7 +96,10 @@ function Habits() {
       </div>
 
       {error && (
-        <p role="alert" className="mt-6 rounded-md border border-[#d8b8b3] bg-[#fbf5f3] px-4 py-3 text-sm text-[#76534d]">
+        <p
+          role="alert"
+          className="mt-6 rounded-md border border-[#d8b8b3] bg-[#fbf5f3] px-4 py-3 text-sm text-[#76534d]"
+        >
           {error}
         </p>
       )}
@@ -117,8 +136,20 @@ function Habits() {
         <p className="mt-6 text-sm text-[#8a867c]">Loading...</p>
       ) : visible.length === 0 ? (
         <EmptyState
-          title={query ? "Nothing matches." : tab === "active" ? "A blank page." : "Nothing archived."}
-          hint={query ? "Try a different search." : tab === "active" ? "Begin whenever you're ready." : undefined}
+          title={
+            query
+              ? "Nothing matches."
+              : tab === "active"
+                ? "A blank page."
+                : "Nothing archived."
+          }
+          hint={
+            query
+              ? "Try a different search."
+              : tab === "active"
+                ? "Begin whenever you're ready."
+                : undefined
+          }
         />
       ) : (
         <ul className="mt-5 space-y-3">

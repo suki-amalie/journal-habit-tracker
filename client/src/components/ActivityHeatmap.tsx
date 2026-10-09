@@ -26,11 +26,13 @@ interface ActivityHeatmapProps {
   colors?: string[];
   footerLink?: { to: string; label: string };
   onYearChange?: (year: number) => void;
+  minYear?: number;
   selectedDate?: string | null;
   onSelectDate?: (date: string) => void;
   compact?: boolean;
   vertical?: boolean;
   flat?: boolean;
+  smallCells?: boolean;
   monthColumns?: string;
 }
 
@@ -44,11 +46,13 @@ function ActivityHeatmap({
   colors = HABIT_COLORS,
   footerLink,
   onYearChange,
+  minYear = 0,
   selectedDate,
   onSelectDate,
   compact = false,
   vertical = false,
   flat = false,
+  smallCells = false,
   monthColumns = "grid-cols-3",
 }: ActivityHeatmapProps) {
   const todayDate = getTodayDate();
@@ -97,7 +101,8 @@ function ActivityHeatmap({
           <button
             type="button"
             onClick={() => changeYear(year - 1)}
-            className="rounded-md p-1.5 text-[#57606a] hover:bg-[#f6f8fa] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8c959f]"
+            disabled={year <= minYear}
+            className="rounded-md p-1.5 text-[#57606a] hover:bg-[#f6f8fa] disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8c959f]"
             aria-label="Previous year"
           >
             <ChevronLeft size={18} />
@@ -121,7 +126,7 @@ function ActivityHeatmap({
       </div>
 
       {vertical ? (
-        <div className={`grid gap-x-4 gap-y-3 ${monthColumns}`}>
+        <div className={`grid gap-x-3 gap-y-2 ${monthColumns}`}>
           {MONTHS.map((name, i) => {
             const month = i + 1;
             const prefix = `${year}-${String(month).padStart(2, "0")}-`;
@@ -131,19 +136,31 @@ function ActivityHeatmap({
             return (
               <div key={name}>
                 <p className="mb-1 text-[10px] font-medium text-[#57606a]">{name}</p>
-                <div className="grid grid-cols-7 gap-[2px]">
+                <div
+                  className={`grid ${
+                    smallCells
+                      ? "grid-cols-[repeat(7,10px)] gap-px"
+                      : "grid-cols-7 gap-[2px]"
+                  }`}
+                >
                   {Array.from({ length: offset }, (_, k) => (
-                    <div key={`o${k}`} className="aspect-square" />
+                    <div
+                      key={`o${k}`}
+                      className={smallCells ? "h-2.5 w-2.5" : "aspect-square"}
+                    />
                   ))}
                   {days.map((date) => {
                     const count = countsByDate.get(date) ?? 0;
                     const intensity = colors[Math.min(count, colors.length - 1)];
                     const selected = selectedDate === date;
                     const ring = selected
-                      ? "ring-2 ring-[#292824] ring-offset-1"
+                      ? "ring-1 ring-[#6b8fc4]"
                       : date === todayDate
                         ? "ring-1 ring-[#8c959f]"
                         : "";
+                    const cellSize = smallCells
+                      ? "h-2.5 w-2.5"
+                      : "aspect-square";
 
                     if (onSelectDate && count > 0) {
                       return (
@@ -154,7 +171,7 @@ function ActivityHeatmap({
                           aria-label={tooltip(date, count)}
                           aria-pressed={selected}
                           onClick={() => onSelectDate(date)}
-                          className={`aspect-square cursor-pointer rounded-[2px] ${intensity} ${ring || "hover:ring-2 hover:ring-[#8c959f]"}`}
+                          className={`${cellSize} cursor-pointer rounded-[2px] ${intensity} ${ring || "hover:ring-1 hover:ring-[#8c959f]"}`}
                         />
                       );
                     }
@@ -163,7 +180,7 @@ function ActivityHeatmap({
                       <div
                         key={date}
                         title={tooltip(date, count)}
-                        className={`aspect-square rounded-[2px] ${intensity} ${ring}`}
+                        className={`${cellSize} rounded-[2px] ${intensity} ${ring}`}
                       />
                     );
                   })}
@@ -272,13 +289,16 @@ function ActivityHeatmap({
           </div>
 
           {/* Legend */}
-          <div className={`${compact ? "mt-2" : "mt-4"} flex items-center justify-end gap-2 text-xs text-[#57606a]`}>
+          <div
+            aria-label="Activity intensity: less to more"
+            className={`${compact ? "mt-2" : "mt-4"} flex items-center justify-end gap-1.5 text-[10px] text-[#8a867c]`}
+          >
             <span>Less</span>
 
             {colors.map((className) => (
               <span
                 key={className}
-                className={`h-3 w-3 rounded-[2px] ${className}`}
+                className={`h-2.5 w-2.5 rounded-[2px] ${className}`}
               />
             ))}
 

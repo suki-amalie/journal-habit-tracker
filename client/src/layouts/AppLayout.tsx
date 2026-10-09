@@ -6,7 +6,7 @@ import {
   CheckSquare,
   BookOpen,
 } from "lucide-react";
-import { Outlet, useLocation, Link } from "react-router-dom";
+import { Outlet, useLocation, Link, useNavigate } from "react-router-dom";
 import AppHeader from "../components/AppHeader";
 import ErrorBoundary from "../components/ErrorBoundary";
 import ShortcutsHelp from "../components/ShortcutsHelp";
@@ -15,6 +15,7 @@ import { usePersistentToggle } from "../hooks/usePersistentToggle";
 
 function AppLayout() {
   const { pathname } = useLocation();
+  const navigate = useNavigate();
   const [collapsed, toggleCollapsed] = usePersistentToggle(
     "layout:sidebar-collapsed",
   );
@@ -22,6 +23,9 @@ function AppLayout() {
 
   useHotkey("b", toggleCollapsed);
   useHotkey("?", () => setHelpOpen((open) => !open));
+  useHotkey("h", () => navigate("/habits"));
+  useHotkey("j", () => navigate("/journal/write"));
+  useHotkey("d", () => navigate("/"));
 
   const navItems = [
     { label: "Dashboard", href: "/", icon: LayoutDashboard },

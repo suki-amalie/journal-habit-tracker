@@ -11,6 +11,7 @@ import { useHabits } from "../hooks/useHabits";
 import { useHabitCompletions, useHabitCompletionsForYear } from "../hooks/useHabitsCompletions";
 import { useJournalActivity } from "../hooks/useJournalActivity";
 import { useJournalEntries } from "../hooks/useJournalEntries";
+import { useHotkey } from "../hooks/useHotkey";
 
 import { getTodayDate } from "../utils/date";
 import { getCompletionCountByDate } from "../utils/habit";
@@ -23,6 +24,7 @@ const DASHBOARD_HEATMAP = {
   compact: true,
   vertical: true,
   flat: true,
+  smallCells: true,
   monthColumns: "grid-cols-4 lg:grid-cols-6",
 } as const;
 
@@ -55,8 +57,11 @@ function Dashboard() {
   );
   const completions =
     habitYear === currentYear ? recentCompletions : pastCompletions.completions;
-  const { countsByDate: journalCountsByDate, error: journalActivityError } =
-    useJournalActivity(journalYear);
+  const {
+    countsByDate: journalCountsByDate,
+    error: journalActivityError,
+    firstActivityYear: firstJournalActivityYear,
+  } = useJournalActivity(journalYear);
   const { entries, loading: entriesLoading } = useJournalEntries(today);
 
   const error = completionsError ?? habitsError ?? journalActivityError;
@@ -73,6 +78,9 @@ function Dashboard() {
 
   const [view, setView] = useState<ActivityView>("habits");
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  useHotkey("t", () =>
+    setView((current) => (current === "habits" ? "journal" : "habits")),
+  );
 
   // Habits completed on the date clicked in the habit heatmap.
   const completedOnSelectedDate = useMemo(() => {
@@ -120,7 +128,7 @@ function Dashboard() {
       </div>
 
       <section className="mt-8 rounded-2xl border border-[#e6dfd2] bg-[#fffefa] p-5">
-        <div className="mb-4 inline-flex rounded-full bg-[#efe9dc] p-0.5 text-sm" role="tablist" aria-label="Activity">
+        <div className="mb-4 inline-flex rounded-full bg-[#f7f3ea] p-0.5 text-sm" role="tablist" aria-label="Activity">
           {(["habits", "journal"] as const).map((key) => (
             <button
               key={key}
@@ -128,8 +136,11 @@ function Dashboard() {
               role="tab"
               aria-selected={view === key}
               onClick={() => setView(key)}
+              title="Switch activity view (T)"
               className={`rounded-full px-4 py-1 capitalize transition-colors ${
-                view === key ? "bg-[#fffefa] text-[#292824] shadow-sm" : "text-[#8a867c] hover:text-[#292824]"
+                view === key
+                  ? "bg-[#dce7f5] text-[#3f5f94]"
+                  : "text-[#8a867c] hover:text-[#292824]"
               }`}
             >
               {key}
@@ -153,8 +164,13 @@ function Dashboard() {
             />
 
             {selectedDate && (
-              <div className="mt-3 px-1">
-                <h3 className="text-sm font-medium text-[#292824]">{selectedDate}</h3>
+              <div className="mt-3 rounded-xl bg-[#f7f3ea] px-3 py-2">
+                <h3 className="text-sm font-medium text-[#292824]">
+                  {new Date(`${selectedDate}T00:00:00`).toLocaleDateString(
+                    "en-US",
+                    { weekday: "long", month: "long", day: "numeric", year: "numeric" },
+                  )}
+                </h3>
                 <ul className="mt-2 space-y-1 text-sm text-[#292824]">
                   {completedOnSelectedDate.length === 0 && (
                     <li className="text-[#8a867c]">Nothing completed.</li>
@@ -179,6 +195,7 @@ function Dashboard() {
             description=""
             countsByDate={journalCountsByDate}
             onYearChange={setJournalYear}
+            minYear={firstJournalActivityYear}
             colors={JOURNAL_COLORS}
             tooltip={(date, count) =>
               `${date}: ${count} journal ${count === 1 ? "entry" : "entries"}`

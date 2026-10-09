@@ -29,7 +29,11 @@ function JournalHistory() {
 
   const [calendarHidden, toggleCalendar] = usePersistentToggle("journal:calendar-hidden");
   useHotkey("c", toggleCalendar);
-  const { countsByDate, error: activityError } = useJournalActivity(year);
+  const {
+    countsByDate,
+    error: activityError,
+    firstActivityYear,
+  } = useJournalActivity(year);
   const { entries, loading, error, editEntry, removeEntry } =
     useJournalEntries(selectedDate);
 
@@ -103,6 +107,7 @@ function JournalHistory() {
               description="Select a day to read what you wrote"
               countsByDate={countsByDate}
               colors={JOURNAL_COLORS}
+              minYear={firstActivityYear}
               tooltip={(date, count) =>
                 `${date}: ${count} journal ${count === 1 ? "entry" : "entries"}`
               }

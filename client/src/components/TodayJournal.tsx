@@ -16,7 +16,7 @@ function TodayJournal({ entries, loading }: TodayJournalProps) {
   const status = loading
     ? "Loading..."
     : written
-      ? `Written at ${formatTime(latest.createdAt)}`
+      ? `${entries.length} ${entries.length === 1 ? "entry" : "entries"} today · latest at ${formatTime(latest.createdAt)}`
       : "Nothing written yet today.";
 
   return (
@@ -29,7 +29,7 @@ function TodayJournal({ entries, loading }: TodayJournalProps) {
       )}
 
       {written && (
-        <div className="relative mt-4 max-h-36 overflow-hidden text-sm">
+        <div className="relative mt-4 max-h-44 overflow-hidden text-sm">
           <MarkdownContent content={latest.content} />
           <div
             aria-hidden="true"
@@ -38,8 +38,8 @@ function TodayJournal({ entries, loading }: TodayJournalProps) {
         </div>
       )}
 
-      <Link to="/journal/write" className="mt-auto pt-5 text-sm text-[#8a867c] hover:text-[#292824]">
-        {written ? "Write more" : "Write today"} →
+      <Link to="/journal/write" className="mt-auto pt-5 text-sm text-[#5a3e32] hover:text-[#8b5d70]">
+        {written ? "Add another entry" : "Start today's entry"} →
       </Link>
     </section>
   );

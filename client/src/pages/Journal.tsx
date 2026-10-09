@@ -30,8 +30,14 @@ function Journal() {
   // Press N anywhere (outside a text field) to start writing
   useEffect(() => {
     function handleKey(e: KeyboardEvent) {
-      if (e.key.toLowerCase() !== "n" || e.ctrlKey || e.metaKey || e.altKey) return;
-      if ((e.target as HTMLElement).closest("input, textarea, [contenteditable='true']")) return;
+      if (e.key.toLowerCase() !== "n" || e.ctrlKey || e.metaKey || e.altKey)
+        return;
+      if (
+        (e.target as HTMLElement).closest(
+          "input, textarea, [contenteditable='true']",
+        )
+      )
+        return;
 
       e.preventDefault();
       setModalOpen(true);
@@ -56,7 +62,10 @@ function Journal() {
   return (
     <div className="mx-auto flex h-full max-w-7xl flex-col px-4 pb-4">
       <div className="mb-3 flex shrink-0 items-baseline justify-between">
-        <h1 className="font-serif text-3xl text-[#292824]">Write</h1>
+        <h1 className="font-serif text-3xl text-[#292824]">
+          Write
+          <span className="text-drop-blue">.</span>
+        </h1>
         <p className="text-sm text-[#716D63]">
           {new Date().toLocaleDateString("en-US", {
             weekday: "long",

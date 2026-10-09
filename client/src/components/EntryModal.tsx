@@ -120,7 +120,7 @@ function EntryModal({
               type="button"
               onClick={onSave}
               disabled={saving || content.trim() === ""}
-              className="rounded-md bg-[#292824] px-4 py-2 text-sm text-white disabled:opacity-50"
+              className="rounded-md bg-[#5A3E32] px-4 py-2 text-sm text-white transition-colors hover:bg-[#4a3228] disabled:cursor-not-allowed disabled:opacity-50"
             >
               {saving ? "Saving..." : saveLabel}
             </button>

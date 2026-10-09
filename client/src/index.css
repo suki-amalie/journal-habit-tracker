@@ -42,12 +42,12 @@ body {
 }
 
 ::selection {
-  background: var(--color-blush);
-  color: var(--color-rose-ink);
+  background: #dce7f5;
+  color: #3f5f94;
 }
 
 :focus-visible {
-  outline: 2px solid var(--color-drop-pink);
+  outline: 2px solid var(--color-drop-blue);
   outline-offset: 2px;
 }
 
@@ -120,4 +120,3 @@ select {
 .animate-page-in {
   animation: page-in 220ms ease-out both;
 }
-

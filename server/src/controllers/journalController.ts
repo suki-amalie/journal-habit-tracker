@@ -81,6 +81,29 @@ export async function getJournalActivity(
   }
 }
 
+export async function getFirstJournalActivity(
+  _req: Request,
+  res: Response,
+) {
+  try {
+    const row = await prisma.journalEntry.findFirst({
+      select: {
+        createdAt: true,
+      },
+      orderBy: {
+        createdAt: "asc",
+      },
+    });
+
+    res.json(row?.createdAt.toISOString() ?? null);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      error: "Failed to get the first journal activity",
+    });
+  }
+}
+
 export async function getJournalEntry(
   req: Request,
   res: Response,

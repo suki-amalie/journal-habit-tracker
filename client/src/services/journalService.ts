@@ -32,6 +32,12 @@ export async function getJournalActivity({
   return response.json();
 }
 
+export async function getFirstJournalActivity(): Promise<string | null> {
+  const response = await apiClient("/journal/activity/first");
+
+  return response.json();
+}
+
 export async function createJournalEntry(
   content: string,
 ): Promise<JournalEntry> {

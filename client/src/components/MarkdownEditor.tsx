@@ -170,7 +170,7 @@ function MarkdownEditor({
   }
 
   return (
-    <div className="overflow-hidden rounded-lg border border-[#ddd9d0] bg-[#fffefa]">
+    <div className="overflow-hidden rounded-lg border border-[#ddd9d0] bg-[#fffefa] transition-colors focus-within:border-[#6B8FC4] focus-within:ring-1 focus-within:ring-[#6B8FC4]/40">
       <div
         role="toolbar"
         aria-label="Formatting"

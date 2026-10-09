@@ -4,7 +4,7 @@ interface PetalProps {
   style?: React.CSSProperties;
 }
 
-export function Petal({ size = 14, className = "", style }: PetalProps) {
+export function Petal({ size = 20, className = "", style }: PetalProps) {
   return (
     <svg
       viewBox="0 0 24 24"
@@ -24,23 +24,37 @@ export function Petal({ size = 14, className = "", style }: PetalProps) {
 }
 
 const DRIFT = [
-  { left: "8%", delay: "0s", duration: "9s", size: 12 },
-  { left: "30%", delay: "3s", duration: "11s", size: 10 },
-  { left: "55%", delay: "6s", duration: "10s", size: 14 },
-  { left: "80%", delay: "1.5s", duration: "12s", size: 11 },
+  { left: "4%", delay: "0s", duration: "9s", size: 20 },
+  { left: "14%", delay: "4s", duration: "11s", size: 24 },
+  { left: "24%", delay: "1.5s", duration: "10s", size: 18 },
+  { left: "35%", delay: "6s", duration: "12s", size: 22 },
+  { left: "46%", delay: "2.5s", duration: "9s", size: 26 },
+  { left: "57%", delay: "7s", duration: "13s", size: 19 },
+  { left: "67%", delay: "3s", duration: "10s", size: 23 },
+  { left: "77%", delay: "5.5s", duration: "12s", size: 20 },
+  { left: "88%", delay: "1s", duration: "11s", size: 25 },
+  { left: "96%", delay: "8s", duration: "14s", size: 18 },
 ];
 
 export function PetalDrift() {
   return (
-    <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
+    <div
+      aria-hidden="true"
+      className="pointer-events-none absolute inset-0 overflow-hidden"
+    >
       {DRIFT.map((p) => (
         <Petal
           key={p.left}
           size={p.size}
-          className="petal-drift absolute -top-4 opacity-0"
-          style={{ left: p.left, animationDelay: p.delay, animationDuration: p.duration }}
+          className="petal-drift absolute -top-6 opacity-0"
+          style={{
+            left: p.left,
+            animationDelay: p.delay,
+            animationDuration: p.duration,
+          }}
         />
       ))}
     </div>
   );
 }
+

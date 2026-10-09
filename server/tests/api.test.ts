@@ -17,6 +17,7 @@ const prismaMock = vi.hoisted(() => ({
   },
   journalEntry: {
     findMany: vi.fn(),
+    findFirst: vi.fn(),
     findUnique: vi.fn(),
     create: vi.fn(),
     update: vi.fn(),
@@ -265,6 +266,23 @@ describe("journal", () => {
       .query({ from, to });
 
     expect(res.body).toEqual([createdAt.toISOString()]);
+  });
+
+  it("returns the first journal activity timestamp or null", async () => {
+    const createdAt = new Date("2024-03-12T10:00:00.000Z");
+    prismaMock.journalEntry.findFirst
+      .mockResolvedValueOnce({ createdAt })
+      .mockResolvedValueOnce(null);
+
+    const firstActivity = await request(app).get("/api/journal/activity/first");
+    const noActivity = await request(app).get("/api/journal/activity/first");
+
+    expect(firstActivity.body).toBe(createdAt.toISOString());
+    expect(noActivity.body).toBeNull();
+    expect(prismaMock.journalEntry.findFirst).toHaveBeenCalledWith({
+      select: { createdAt: true },
+      orderBy: { createdAt: "asc" },
+    });
   });
 
   it("creates, updates and deletes entries", async () => {
