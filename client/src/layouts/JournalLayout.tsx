@@ -1,6 +1,5 @@
 
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
-import { PetalDrift } from "../components/Petal";
 import { useHotkey } from "../hooks/useHotkey";
 const tabs = [
   { to: "/journal/write", label: "Write" },
