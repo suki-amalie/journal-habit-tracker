@@ -20,7 +20,6 @@ function JournalLayout() {
   return (
     <div className="flex h-dvh flex-col overflow-hidden">
       <div className="sticky top-0 z-20 shrink-0 bg-[#f7f3ea] px-4 py-3">
-      <PetalDrift />
 
       <nav
         aria-label="Journal sections"
