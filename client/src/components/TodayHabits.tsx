@@ -10,7 +10,6 @@ interface TodayHabitsProps {
 
 function TodayHabits({ habits, completedHabitIds, maxItems = 3 }: TodayHabitsProps) {
   const done = habits.filter((habit) => completedHabitIds.has(habit.id)).length;
-  const remaining = habits.length - done;
 
   return (
     <section className="flex flex-col rounded-2xl border border-[#e6dfd2] bg-[#fffefa] p-5">
@@ -62,18 +61,6 @@ function TodayHabits({ habits, completedHabitIds, maxItems = 3 }: TodayHabitsPro
         })}
       </ul>
 
-      {habits.length > maxItems && (
-        <p className="mt-3 text-xs text-[#8a867c]">
-          And {habits.length - maxItems} more to tend to.
-        </p>
-      )}
-      {habits.length > 0 && (
-        <p className="mt-3 text-xs text-[#8a867c]">
-          {remaining === 0
-            ? "Everything tended to today."
-            : `${remaining} ${remaining === 1 ? "habit" : "habits"} left for today.`}
-        </p>
-      )}
 
       <Link to="/habits" className="mt-auto pt-5 text-sm text-[#5a3e32] hover:text-[#8b5d70]">
         Review today&apos;s habits →
