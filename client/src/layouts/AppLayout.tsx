@@ -97,7 +97,7 @@ function AppLayout() {
                   key={item.href}
                   to={item.href}
                   title={collapsed ? item.label : undefined}
-                  className={`group flex h-10 items-center rounded-xl text-sm font-medium transition-colors duration-200 ${
+                  className={`group flex h-10 items-center rounded-xl text-sm font-medium transition-colors duration-200 outline-none ring-0 focus:outline-none focus:ring-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#F2B5C8] ${
                     collapsed ? "justify-center px-0" : "gap-3 px-3"
                   } ${
                     isActive
@@ -151,7 +151,6 @@ function AppLayout() {
 
       {/* Main Area */}
       <div className="min-h-0 flex-1 bg-[#f7f3ea]">
-
         <main className="min-h-screen bg-[#f7f3ea]">
           <ErrorBoundary>
             <div key={pathname} className="animate-page-in">
