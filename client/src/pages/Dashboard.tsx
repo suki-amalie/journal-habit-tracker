@@ -83,6 +83,13 @@ function Dashboard() {
   );
 
   const [view, setView] = useState<ActivityView>("habits");
+
+  const activeDays = useMemo(() => {
+    const counts = view === "habits" ? habitCountsByDate : journalCountsByDate;
+
+    return [...counts.values()].filter((count) => count > 0).length;
+  }, [view, habitCountsByDate, journalCountsByDate]);
+
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   useHotkey("t", () =>
     setView((current) => (current === "habits" ? "journal" : "habits")),
@@ -114,7 +121,7 @@ function Dashboard() {
   return (
     <div className="mx-auto max-w-6xl px-6 py-8 lg:px-10">
       <header className="relative">
-        <PetalDrift />
+        <PetalDrift theme="pink" />
         <h1 className="relative font-serif text-3xl text-[#292824]">
           {greeting}
           <span className="text-drop-pink">.</span>
@@ -140,6 +147,22 @@ function Dashboard() {
       </div>
 
       <section className="mt-8 rounded-2xl border border-[#e6dfd2] bg-[#fffefa] p-5">
+        <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <h2 className="relative font-serif text-2xl text-[#292824]">
+              Your little steps
+              <span className="text-drop-blue">.</span>
+            </h2>
+            <p className="mt-1 text-sm text-[#8a867c]">
+              A record of the days you showed up.
+            </p>
+          </div>
+
+          <p className="text-sm text-[#8a867c]">
+            <span className="font-medium text-[#292824]">{activeDays}</span>{" "}
+            active {activeDays === 1 ? "day" : "days"}
+          </p>
+        </div>
         <div
           className="mb-4 inline-flex rounded-full bg-[#efe9dc] p-0.5 text-sm"
           role="tablist"

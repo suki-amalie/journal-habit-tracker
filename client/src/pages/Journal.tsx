@@ -84,7 +84,6 @@ function Journal() {
           startAtEnd
         />
       </div>
-
       <NewEntryModal
         open={modalOpen}
         onClose={() => setModalOpen(false)}

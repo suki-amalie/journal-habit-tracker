@@ -21,7 +21,10 @@ function TodayJournal({ entries, loading }: TodayJournalProps) {
 
   return (
     <section className="flex flex-col rounded-2xl border border-[#e6dfd2] bg-[#fffefa] p-5">
-      <h2 className="font-serif text-xl text-[#292824]">Journal</h2>
+      <h2 className="font-serif text-xl  text-drop-blue">J
+        <span className="text-[#292824]">ournal</span>
+
+      </h2>
       <p className="mt-0.5 text-sm text-[#8a867c]">{status}</p>
 
       {!loading && !written && (

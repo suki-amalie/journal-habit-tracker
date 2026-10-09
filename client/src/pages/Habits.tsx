@@ -52,6 +52,10 @@ function Habits() {
     setTab((current) => (current === "active" ? "archived" : "active")),
   );
 
+  useHotkey("+", () => 
+    setAdding(true),
+  );
+
   const visible = habits.filter(
     (habit) =>
       (habit.archivedAt === null) === (tab === "active") &&

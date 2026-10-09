@@ -27,7 +27,9 @@ function JournalHistory() {
   const [year, setYear] = useState(Number(today.slice(0, 4)));
   const [selectedDate, setSelectedDate] = useState(initialDate);
 
-  const [calendarHidden, toggleCalendar] = usePersistentToggle("journal:calendar-hidden");
+  const [calendarHidden, toggleCalendar] = usePersistentToggle(
+    "journal:calendar-hidden",
+  );
   useHotkey("c", toggleCalendar);
   const {
     countsByDate,
@@ -48,8 +50,8 @@ function JournalHistory() {
         </p>
       )}
 
-      <div className="mb-3 flex shrink-0 items-end justify-between gap-3 px-1">
-        <div>
+      <div className="relative mb-3 flex shrink-0 items-center justify-between gap-3 px-1">
+        <div className="flex min-w-0 flex-1 items-center gap-3">
           <h2 className="font-serif text-2xl leading-tight text-[#292824]">
             {new Date(`${selectedDate}T00:00:00`).toLocaleDateString("en-US", {
               weekday: "long",
@@ -57,15 +59,18 @@ function JournalHistory() {
               day: "numeric",
               year: "numeric",
             })}
+            <span className="text-drop-blue">.</span>
           </h2>
+         
           <p className="mt-0.5 text-xs text-[#aaa49a]">
             {loading
               ? "Loading..."
               : `${entries.length} ${entries.length === 1 ? "entry" : "entries"}`}
           </p>
+
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="ml-auto flex shrink-0 items-center gap-2">
           {selectedDate !== today && (
             <button
               type="button"
@@ -78,11 +83,23 @@ function JournalHistory() {
           <button
             type="button"
             onClick={toggleCalendar}
-            aria-label={calendarHidden ? "Show activity calendar (C)" : "Hide activity calendar (C)"}
-            title={calendarHidden ? "Show activity calendar (C)" : "Hide activity calendar (C)"}
+            aria-label={
+              calendarHidden
+                ? "Show activity calendar (C)"
+                : "Hide activity calendar (C)"
+            }
+            title={
+              calendarHidden
+                ? "Show activity calendar (C)"
+                : "Hide activity calendar (C)"
+            }
             className="rounded-full border border-[#d8d2c6] bg-[#fffefa] p-1.5 text-[#716d63] shadow-sm transition-colors hover:text-[#292824]"
           >
-            {calendarHidden ? <PanelRightOpen size={16} /> : <PanelRightClose size={16} />}
+            {calendarHidden ? (
+              <PanelRightOpen size={16} />
+            ) : (
+              <PanelRightClose size={16} />
+            )}
           </button>
         </div>
       </div>
@@ -95,7 +112,11 @@ function JournalHistory() {
             </div>
           )}
 
-          <JournalDayBook entries={entries} onEdit={editEntry} onDelete={removeEntry} />
+          <JournalDayBook
+            entries={entries}
+            onEdit={editEntry}
+            onDelete={removeEntry}
+          />
         </div>
 
         {!calendarHidden && (

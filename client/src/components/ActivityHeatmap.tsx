@@ -126,7 +126,7 @@ function ActivityHeatmap({
       </div>
 
       {vertical ? (
-        <div className={`grid gap-x-3 gap-y-2 ${monthColumns}`}>
+        <div className={`grid gap-x-2 gap-y-2 ${monthColumns}`}>
           {MONTHS.map((name, i) => {
             const month = i + 1;
             const prefix = `${year}-${String(month).padStart(2, "0")}-`;
@@ -139,14 +139,14 @@ function ActivityHeatmap({
                 <div
                   className={`grid ${
                     smallCells
-                      ? "grid-cols-[repeat(7,10px)] gap-px"
-                      : "grid-cols-7 gap-[2px]"
+                      ? "grid-cols-[repeat(7,16px)] gap-px"
+                      : "grid-cols-7 gap-[1px]"
                   }`}
                 >
                   {Array.from({ length: offset }, (_, k) => (
                     <div
                       key={`o${k}`}
-                      className={smallCells ? "h-2.5 w-2.5" : "aspect-square"}
+                      className={smallCells ? "h-3 w-9" : "aspect-square"}
                     />
                   ))}
                   {days.map((date) => {

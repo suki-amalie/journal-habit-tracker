@@ -8,13 +8,15 @@ interface TodayHabitsProps {
   maxItems?: number;
 }
 
-function TodayHabits({ habits, completedHabitIds, maxItems = 5 }: TodayHabitsProps) {
+function TodayHabits({ habits, completedHabitIds, maxItems = 3 }: TodayHabitsProps) {
   const done = habits.filter((habit) => completedHabitIds.has(habit.id)).length;
   const remaining = habits.length - done;
 
   return (
     <section className="flex flex-col rounded-2xl border border-[#e6dfd2] bg-[#fffefa] p-5">
-      <h2 className="font-serif text-xl text-[#292824]">Habits</h2>
+      <h2 className="font-serif text-xl text-[#292824]">Habit
+        <span className="text-drop-green">s</span>
+      </h2>
       <p className="mt-0.5 text-sm text-[#8a867c]">
         {habits.length === 0 ? "No habits yet." : `${done} of ${habits.length} today`}
       </p>
