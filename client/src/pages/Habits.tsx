@@ -36,6 +36,9 @@ function Habits() {
   const [adding, setAdding] = useState(false);
   const [editing, setEditing] = useState<Habit | null>(null);
   const [deleting, setDeleting] = useState<Habit | null>(null);
+  const [bulkAction, setBulkAction] = useState<"archive" | "restore" | null>(
+    null,
+  );
   const toast = useToast();
 
   const error = habitsError ?? completionsError;
@@ -52,6 +55,34 @@ function Habits() {
     setTab((current) => (current === "active" ? "archived" : "active")),
   );
 
+  useHotkey("m", () => {
+    const activeHabits = habits.filter((habit) => habit.archivedAt === null);
+    const allCompleted = activeHabits.every((habit) =>
+      completedHabitIds.has(habit.id),
+    );
+
+    if (activeHabits.length === 0) return;
+
+    activeHabits.forEach((habit) => {
+      const isCompleted = completedHabitIds.has(habit.id);
+
+      if (isCompleted === allCompleted) {
+        void toggleHabit(habit);
+      }
+    });
+  });
+
+  useHotkey("r", () => {
+    const targets = habits.filter((habit) =>
+      tab === "active" ? habit.archivedAt === null : habit.archivedAt !== null,
+    );
+
+    if (targets.length === 0) return;
+
+    setBulkAction(tab === "active" ? "archive" : "restore");
+  });
+
+  // hotkey to add new habit
   useHotkey("+", () => setAdding(true));
 
   const visible = habits.filter(
@@ -216,6 +247,47 @@ function Habits() {
             const id = deleting.id;
             setDeleting(null);
             void removeHabit(id);
+          }}
+        />
+      )}
+
+      {bulkAction && (
+        <ConfirmDialog
+          title={
+            bulkAction === "archive"
+              ? "Archive all active habits?"
+              : "Restore all archived habits?"
+          }
+          message={
+            bulkAction === "archive"
+              ? "All active habits will be archived. You can restore them later."
+              : "All archived habits will be restored to your active habits."
+          }
+          confirmLabel={
+            bulkAction === "archive" ? "Archive all" : "Restore all"
+          }
+          onCancel={() => setBulkAction(null)}
+          onConfirm={async () => {
+            const action = bulkAction;
+            setBulkAction(null);
+
+            const targets = habits.filter((habit) =>
+              action === "archive"
+                ? habit.archivedAt === null
+                : habit.archivedAt !== null,
+            );
+
+            await Promise.all(
+              targets.map((habit) =>
+                editHabit(habit.id, { archived: action === "archive" }),
+              ),
+            );
+
+            toast.show({
+              message: `${targets.length} habits ${
+                action === "archive" ? "archived" : "restored"
+              }`,
+            });
           }}
         />
       )}
