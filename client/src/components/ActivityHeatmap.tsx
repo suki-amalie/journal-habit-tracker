@@ -108,7 +108,7 @@ function ActivityHeatmap({
             <ChevronLeft size={18} />
           </button>
 
-          <span className="px-2 text-sm font-medium">
+          <span className="px-2 font-sans font-medium">
             {year}
           </span>
 
@@ -159,7 +159,7 @@ function ActivityHeatmap({
                         ? "ring-1 ring-[#8c959f]"
                         : "";
                     const cellSize = smallCells
-                      ? "h-2.5 w-2.5"
+                      ? "h-3 w-3"
                       : "aspect-square";
 
                     if (onSelectDate && count > 0) {

@@ -52,9 +52,7 @@ function Habits() {
     setTab((current) => (current === "active" ? "archived" : "active")),
   );
 
-  useHotkey("+", () => 
-    setAdding(true),
-  );
+  useHotkey("+", () => setAdding(true));
 
   const visible = habits.filter(
     (habit) =>
@@ -83,9 +81,9 @@ function Habits() {
     <div className="mx-auto max-w-6xl px-6 py-8 lg:px-10">
       <div className="flex items-end justify-between gap-4">
         <div>
-          <h1 className="font-serif text-3xl text-[#292824]">
+          <h1 className="font-serif text-3xl text-[#292824] flex items-end gap-1.5">
             Habits
-            <span className="text-drop-green">.</span>
+            <span className="inline-block size-1.5 rounded-full bg-[#5A6E4F] mb-1.5" />
           </h1>
           <p className="mt-1 text-sm text-[#8a867c]">
             {activeCount === 0

@@ -119,14 +119,16 @@ function Dashboard() {
   const greeting = getGreeting(new Date().getHours());
 
   return (
-    <div className="mx-auto max-w-6xl px-6 py-8 lg:px-10">
+    <div className="mx-auto max-w-6xl px-6 py-6 lg:px-8">
       <header className="relative">
         <PetalDrift theme="pink" />
-        <h1 className="relative font-serif text-3xl text-[#292824]">
+
+        <h1 className="relative font-serif text-5xl leading-tight text-[#292824]">
           {greeting}
           <span className="text-drop-pink">.</span>
         </h1>
-        <p className="mt-1 text-sm text-[#8a867c]">{dateLabel}</p>
+
+        <p className="mt-1.5 text-sm text-[#8a867c]">{dateLabel}</p>
       </header>
 
       {error && (
@@ -138,7 +140,7 @@ function Dashboard() {
         </p>
       )}
 
-      <div className="mt-8 grid gap-5 md:grid-cols-[2fr_3fr]">
+      <div className="mt-6 grid gap-4 md:grid-cols-2">
         <TodayHabits
           habits={activeHabits}
           completedHabitIds={completedHabitIds}
@@ -146,46 +148,52 @@ function Dashboard() {
         <TodayJournal entries={entries} loading={entriesLoading} />
       </div>
 
-      <section className="mt-8 rounded-2xl border border-[#e6dfd2] bg-[#fffefa] p-5">
-        <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
-          <div>
-            <h2 className="relative font-serif text-2xl text-[#292824]">
-              Your little steps
-              <span className="text-drop-blue">.</span>
-            </h2>
-            <p className="mt-1 text-sm text-[#8a867c]">
-              A record of the days you showed up.
-            </p>
-          </div>
+      <section className="mt-5 rounded-2xl border border-[#e6dfd2] bg-[#fffefa] p-4">
+        {" "}
 
-          <p className="text-sm text-[#8a867c]">
-            <span className="font-medium text-[#292824]">{activeDays}</span>{" "}
-            active {activeDays === 1 ? "day" : "days"}
-          </p>
-        </div>
-        <div
-          className="mb-4 inline-flex rounded-full bg-[#efe9dc] p-0.5 text-sm"
-          role="tablist"
-          aria-label="Activity"
+
+
+
+<div className="mb-3 flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+  <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+    <h2 className="text-center font-serif text-2xl leading-tight tracking-tight text-[#292824]">
+      A record of your activities
+      <span className="text-drop-blue">.</span>
+    </h2>
+
+    <div
+      className="inline-flex shrink-0 rounded-full bg-[#efe9dc] p-0.5 text-sm"
+      role="tablist"
+      aria-label="Activity"
+    >
+      {(["habits", "journal"] as const).map((key) => (
+        <button
+          key={key}
+          type="button"
+          role="tab"
+          aria-selected={view === key}
+          onClick={() => setView(key)}
+          title="Switch activity view (T)"
+          className={`rounded-full px-4 py-1 capitalize transition-colors ${
+            view === key
+              ? "bg-[#fffefa] text-[#292824] shadow-sm"
+              : "text-[#8a867c] hover:text-[#292824]"
+          }`}
         >
-          {(["habits", "journal"] as const).map((key) => (
-            <button
-              key={key}
-              type="button"
-              role="tab"
-              aria-selected={view === key}
-              onClick={() => setView(key)}
-              title="Switch activity view (T)"
-              className={`rounded-full px-4 py-1 capitalize transition-colors ${
-                view === key
-                  ? "bg-[#fffefa] text-[#292824] shadow-sm"
-                  : "text-[#8a867c] hover:text-[#292824]"
-              }`}
-            >
-              {key}
-            </button>
-          ))}
-        </div>
+          {key}
+        </button>
+      ))}
+    </div>
+  </div>
+
+  <p className="shrink-0 text-sm text-[#8a867c]">
+    <span className="font-medium text-[#292824]">{activeDays}</span>{" "}
+    {view === "habits" ? "active" : "writing"}{" "}
+    {activeDays === 1 ? "day" : "days"}
+  </p>
+</div>
+
+
 
         {view === "habits" ? (
           <>
@@ -201,38 +209,6 @@ function Dashboard() {
                 setSelectedDate((current) => (current === date ? null : date))
               }
             />
-
-            {selectedDate && (
-              <div className="mt-3 rounded-xl bg-[#f7f3ea] px-3 py-2">
-                <h3 className="text-sm font-medium text-[#292824]">
-                  {new Date(`${selectedDate}T00:00:00`).toLocaleDateString(
-                    "en-US",
-                    {
-                      weekday: "long",
-                      month: "long",
-                      day: "numeric",
-                      year: "numeric",
-                    },
-                  )}
-                </h3>
-                <ul className="mt-2 space-y-1 text-sm text-[#292824]">
-                  {completedOnSelectedDate.length === 0 && (
-                    <li className="text-[#8a867c]">Nothing completed.</li>
-                  )}
-                  {completedOnSelectedDate.map((habit) => (
-                    <li key={habit.id} className="flex items-center gap-2">
-                      <span className="text-[#4F8A47]">✓</span>
-                      {habit.name}
-                      {habit.archivedAt !== null && (
-                        <span className="text-xs text-[#716d63]">
-                          (archived)
-                        </span>
-                      )}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
           </>
         ) : (
           <ActivityHeatmap
@@ -248,6 +224,35 @@ function Dashboard() {
             }
             onSelectDate={(date) => navigate(`/journal/history?date=${date}`)}
           />
+        )}
+        {selectedDate && (
+          <div className="mt-3 rounded-xl bg-[#f7f3ea] px-3 py-2">
+            <h3 className="text-sm font-medium text-[#292824]">
+              {new Date(`${selectedDate}T00:00:00`).toLocaleDateString(
+                "en-US",
+                {
+                  weekday: "long",
+                  month: "long",
+                  day: "numeric",
+                  year: "numeric",
+                },
+              )}
+            </h3>
+            <ul className="mt-2 space-y-1 text-sm text-[#292824]">
+              {completedOnSelectedDate.length === 0 && (
+                <li className="text-[#8a867c]">Nothing completed.</li>
+              )}
+              {completedOnSelectedDate.map((habit) => (
+                <li key={habit.id} className="flex items-center gap-2">
+                  <span className="text-[#4F8A47]">✓</span>
+                  {habit.name}
+                  {habit.archivedAt !== null && (
+                    <span className="text-xs text-[#716d63]">(archived)</span>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
         )}
       </section>
     </div>
