@@ -74,7 +74,7 @@ function EntryModal({
       onClick={(e) => {
         if (e.target === dialogRef.current && pressedOnBackdrop.current) onClose();
       }}
-      className="m-auto max-h-[calc(100dvh-2rem)] w-[calc(100vw-2rem)] max-w-4xl overflow-y-auto rounded-lg border border-[#d8d2c6] bg-[#fffefa] p-0 shadow-xl backdrop:bg-black/40"
+      className="fixed inset-y-3 left-42 right-2 m-0 h-auto max-h-none w-auto max-w-none overflow-y-auto rounded-lg border border-[#d8d2c6] bg-[#fffefa] p-0 shadow-xl backdrop:bg-black/40"
     >
       {open && (
         <div className="p-5">

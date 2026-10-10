@@ -190,7 +190,7 @@ function MarkdownEditor({
         ))}
       </div>
 
-      <div className="grid md:grid-cols-2 md:divide-x md:divide-[#ddd9d0]">
+      <div className="grid min-h-[72vh] md:grid-cols-2 md:divide-x md:divide-[#ddd9d0]">
         <textarea
           ref={textareaRef}
           value={value}
