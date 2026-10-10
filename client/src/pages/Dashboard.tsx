@@ -148,53 +148,46 @@ function Dashboard() {
         <TodayJournal entries={entries} loading={entriesLoading} />
       </div>
 
-      <section className="mt-5 rounded-2xl border border-[#e6dfd2] bg-[#fffefa] p-4">
+      <section className="mt-6 rounded-2xl border border-[#e6dfd2] bg-[#fffefa] p-6">
         {" "}
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+            <h2 className="text-center font-serif text-2xl leading-tight tracking-tight text-[#292824]">
+              A record of your activities
+              <span className="text-drop-blue">.</span>
+            </h2>
 
+            <div
+              className="inline-flex shrink-0 rounded-full bg-[#efe9dc] p-0.5 text-sm"
+              role="tablist"
+              aria-label="Activity"
+            >
+              {(["habits", "journal"] as const).map((key) => (
+                <button
+                  key={key}
+                  type="button"
+                  role="tab"
+                  aria-selected={view === key}
+                  onClick={() => setView(key)}
+                  title="Switch activity view (T)"
+                  className={`rounded-full px-4 py-1 capitalize transition-colors ${
+                    view === key
+                      ? "bg-[#fffefa] text-[#292824] shadow-sm"
+                      : "text-[#8a867c] hover:text-[#292824]"
+                  }`}
+                >
+                  {key}
+                </button>
+              ))}
+            </div>
+          </div>
 
-
-
-<div className="mb-3 flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
-  <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-    <h2 className="text-center font-serif text-2xl leading-tight tracking-tight text-[#292824]">
-      A record of your activities
-      <span className="text-drop-blue">.</span>
-    </h2>
-
-    <div
-      className="inline-flex shrink-0 rounded-full bg-[#efe9dc] p-0.5 text-sm"
-      role="tablist"
-      aria-label="Activity"
-    >
-      {(["habits", "journal"] as const).map((key) => (
-        <button
-          key={key}
-          type="button"
-          role="tab"
-          aria-selected={view === key}
-          onClick={() => setView(key)}
-          title="Switch activity view (T)"
-          className={`rounded-full px-4 py-1 capitalize transition-colors ${
-            view === key
-              ? "bg-[#fffefa] text-[#292824] shadow-sm"
-              : "text-[#8a867c] hover:text-[#292824]"
-          }`}
-        >
-          {key}
-        </button>
-      ))}
-    </div>
-  </div>
-
-  <p className="shrink-0 text-sm text-[#8a867c]">
-    <span className="font-medium text-[#292824]">{activeDays}</span>{" "}
-    {view === "habits" ? "active" : "writing"}{" "}
-    {activeDays === 1 ? "day" : "days"}
-  </p>
-</div>
-
-
-
+          <p className="shrink-0 text-sm text-[#8a867c]">
+            <span className="font-medium text-[#292824]">{activeDays}</span>{" "}
+            {view === "habits" ? "active" : "writing"}{" "}
+            {activeDays === 1 ? "day" : "days"}
+          </p>
+        </div>
         {view === "habits" ? (
           <>
             <ActivityHeatmap
