@@ -11,14 +11,51 @@ datasource db {
   provider = "postgresql"
 }
 
+// ==========================================
+// Authentication
+// ==========================================
+
+model User {
+  id           Int      @id @default(autoincrement())
+  email        String   @unique @db.VarChar(255)
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  sessions       Session[]
+  habits         Habit[]
+  journalEntries JournalEntry[]
+}
+
+model Session {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  tokenHash String   @unique @db.VarChar(64)
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+// ==========================================
+// Habits
+// ==========================================
+
 model Habit {
   id          Int                @id @default(autoincrement())
+  userId      Int?
   name        String             @db.VarChar(100)
   description String?            @db.VarChar(500)
   createdAt   DateTime           @default(now())
   archivedAt  DateTime?
 
+  user        User?              @relation(fields: [userId], references: [id], onDelete: Cascade)
   completions HabitCompletion[]
+
+  @@index([userId])
 }
 
 model HabitCompletion {
@@ -32,11 +69,19 @@ model HabitCompletion {
   @@index([habitId, date])
 }
 
+// ==========================================
+// Journal
+// ==========================================
+
 model JournalEntry {
   id        Int      @id @default(autoincrement())
+  userId    Int?
   content   String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
   @@index([createdAt])
 }
