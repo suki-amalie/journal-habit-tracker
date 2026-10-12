@@ -14,10 +14,7 @@ import {
 } from "../validation/schemas.js";
 
 // GET /api/habits?status=active|archived|all (default: active)
-export async function getHabits(
-  req: Request,
-  res: Response,
-) {
+export async function getHabits(req: Request, res: Response) {
   try {
     const parsed = habitListQuerySchema.safeParse(req.query);
 
@@ -28,34 +25,32 @@ export async function getHabits(
     }
 
     const { status } = parsed.data;
+    const userId = req.user!.id;
 
     const habits = await prisma.habit.findMany({
-      where:
-        status === "active"
-          ? { archivedAt: null }
-          : status === "archived"
-            ? { archivedAt: { not: null } }
-            : {},
-      orderBy: {
-        createdAt: "asc",
+      where: {
+        userId,
+        ...(status === "active" && { archivedAt: null }),
+        ...(status === "archived" && {
+          archivedAt: { not: null },
+        }),
       },
+      orderBy: { createdAt: "asc" },
     });
 
     res.json(habits);
   } catch (error) {
     console.error(error);
+    console.error("getHabits failed:", error);
 
     res.status(500).json({
-      error: "Failed to fetch habits",
+      error:  error instanceof Error ? error.message : String(error),
     });
   }
 }
 
 // POST /api/habits
-export async function createHabit(
-  req: Request,
-  res: Response,
-) {
+export async function createHabit(req: Request, res: Response) {
   try {
     const parsed = createHabitSchema.safeParse(req.body);
 
@@ -71,6 +66,7 @@ export async function createHabit(
       data: {
         name,
         description: description ?? null,
+        userId: req.user!.id,
       },
     });
 
@@ -86,10 +82,7 @@ export async function createHabit(
 
 // PATCH /api/habits/:id
 // Edits name/description and archives or restores the habit.
-export async function updateHabit(
-  req: Request,
-  res: Response,
-) {
+export async function updateHabit(req: Request, res: Response) {
   try {
     const parsedId = habitIdSchema.safeParse(req.params.id);
 
@@ -140,10 +133,7 @@ export async function updateHabit(
 
 // DELETE /api/habits/:id
 // Permanent: completions are removed with the habit (onDelete: Cascade).
-export async function deleteHabit(
-  req: Request,
-  res: Response,
-) {
+export async function deleteHabit(req: Request, res: Response) {
   try {
     const parsedId = habitIdSchema.safeParse(req.params.id);
 
@@ -176,10 +166,7 @@ export async function deleteHabit(
 }
 
 // POST /api/habits/:id/completions
-export async function createHabitCompletion(
-  req: Request,
-  res: Response,
-) {
+export async function createHabitCompletion(req: Request, res: Response) {
   try {
     const parsedId = habitIdSchema.safeParse(req.params.id);
 
@@ -255,10 +242,7 @@ export async function createHabitCompletion(
 }
 
 // DELETE /api/habits/:id/completions/:date
-export async function deleteHabitCompletion(
-  req: Request,
-  res: Response,
-) {
+export async function deleteHabitCompletion(req: Request, res: Response) {
   try {
     const parsed = habitCompletionParamsSchema.safeParse(req.params);
 
@@ -296,10 +280,7 @@ export async function deleteHabitCompletion(
 }
 
 // GET /api/habits/:id/completions
-export async function getHabitCompletions(
-  req: Request,
-  res: Response,
-) {
+export async function getHabitCompletions(req: Request, res: Response) {
   try {
     const parsedId = habitIdSchema.safeParse(req.params.id);
 
@@ -329,10 +310,7 @@ export async function getHabitCompletions(
 }
 
 // GET /api/habits/completions?from=&to=
-export async function getAllHabitCompletions(
-  req: Request,
-  res: Response,
-) {
+export async function getAllHabitCompletions(req: Request, res: Response) {
   try {
     const parsed = habitCompletionsQuerySchema.safeParse(req.query);
 

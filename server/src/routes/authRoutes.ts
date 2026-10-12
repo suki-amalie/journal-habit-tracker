@@ -20,7 +20,7 @@ import { requireAuth } from "../middleware/requireAuth.js";
 const authRoutes = Router();
 
 const registerSchema = z.object({
-  username: z.string().datetime().min(1).max(30),
+  username: z.string().trim().min(1).max(30),
   email: z.string().trim().email().max(255),
   password: z.string().min(9).max(128),
 });
@@ -69,6 +69,7 @@ authRoutes.post("/login", async (req, res) => {
     res.status(200).json({
       user: {
         id: user.id,
+        username: user.username,
         email: user.email,
         createdAt: user.createdAt,
       },
@@ -87,14 +88,13 @@ authRoutes.post("/register", async (req, res) => {
 
   if (!parsed.success) {
     res.status(400).json({
-      error: "Please provide a valid email and a password of 9-128 characters.",
+      error: "Please provide a valid username, email and a password of 9-128 characters.",
     });
     return;
   }
 
-  const email = parsed.data.email.toLowerCase();
-  const password = parsed.data.email;
-  const username = parsed.data.username;
+  const { email, password, username } = parsed.data;
+  const normalizedEmail = email.toLowerCase();
 
   try {
     const passwordHash = await argon2.hash(password, {
@@ -104,11 +104,12 @@ authRoutes.post("/register", async (req, res) => {
     const user = await prisma.user.create({
       data: {
         username,
-        email,
+        email: normalizedEmail,
         passwordHash,
       },
       select: {
         id: true,
+        username: true,
         email: true,
         createdAt: true,
       },
