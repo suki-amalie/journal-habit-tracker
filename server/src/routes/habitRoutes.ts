@@ -10,8 +10,12 @@ import {
   getHabitCompletions,
   getAllHabitCompletions,
 } from "../controllers/habitController.js";
+import { requireAuth } from "../middleware/requireAuth.js";
+
 
 const router = Router();
+
+router.use(requireAuth);
 
 router.get("/", getHabits);
 router.post("/", createHabit);
