@@ -59,10 +59,9 @@ export const requireAuth: RequestHandler = async (
   }
 
   // Authentication succeeded. Make the user available to later handlers.
-  console.log("Session found:", session);
+  //console.log("Session found:", session);
   req.user = session.user;
-  console.log("Authenticated user:", req.user);
-
+  //console.log("Authenticated user:", req.user);
 
   next();
 };

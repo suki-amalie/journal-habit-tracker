@@ -22,8 +22,11 @@ export async function getJournalEntries(
       });
     }
 
+    const userId = req.user!.id;
+
     const entries = await prisma.journalEntry.findMany({
       where: {
+        userId,
         createdAt: {
           gte: new Date(parsed.data.from),
           lt: new Date(parsed.data.to),
@@ -34,10 +37,10 @@ export async function getJournalEntries(
       },
     });
 
-    res.json(entries);
+    return res.json(entries);
   } catch (error) {
     console.error(error);
-    res.status(500).json({
+    return res.status(500).json({
       error: "Failed to get journal entries",
     });
   }
@@ -57,8 +60,11 @@ export async function getJournalActivity(
       });
     }
 
+    const userId = req.user!.id;
+
     const rows = await prisma.journalEntry.findMany({
       where: {
+        userId,
         createdAt: {
           gte: new Date(parsed.data.from),
           lt: new Date(parsed.data.to),
@@ -72,21 +78,28 @@ export async function getJournalActivity(
       },
     });
 
-    res.json(rows.map((row) => row.createdAt.toISOString()));
+    return res.json(
+      rows.map((row) => row.createdAt.toISOString()),
+    );
   } catch (error) {
     console.error(error);
-    res.status(500).json({
+    return res.status(500).json({
       error: "Failed to get journal activity",
     });
   }
 }
 
 export async function getFirstJournalActivity(
-  _req: Request,
+  req: Request,
   res: Response,
 ) {
   try {
+    const userId = req.user!.id;
+
     const row = await prisma.journalEntry.findFirst({
+      where: {
+        userId,
+      },
       select: {
         createdAt: true,
       },
@@ -95,10 +108,10 @@ export async function getFirstJournalActivity(
       },
     });
 
-    res.json(row?.createdAt.toISOString() ?? null);
+    return res.json(row?.createdAt.toISOString() ?? null);
   } catch (error) {
     console.error(error);
-    res.status(500).json({
+    return res.status(500).json({
       error: "Failed to get the first journal activity",
     });
   }
@@ -117,11 +130,10 @@ export async function getJournalEntry(
       });
     }
 
-    const id = parsed.data;
-
-    const entry = await prisma.journalEntry.findUnique({
+    const entry = await prisma.journalEntry.findFirst({
       where: {
-        id,
+        id: parsed.data,
+        userId: req.user!.id,
       },
     });
 
@@ -131,10 +143,10 @@ export async function getJournalEntry(
       });
     }
 
-    res.json(entry);
+    return res.json(entry);
   } catch (error) {
     console.error(error);
-    res.status(500).json({
+    return res.status(500).json({
       error: "Failed to get journal entry",
     });
   }
@@ -153,18 +165,17 @@ export async function createJournalEntry(
       });
     }
 
-    const { content } = parsed.data;
-
     const entry = await prisma.journalEntry.create({
       data: {
-        content,
+        content: parsed.data.content,
+        userId: req.user!.id,
       },
     });
 
-    res.status(201).json(entry);
+    return res.status(201).json(entry);
   } catch (error) {
     console.error(error);
-    res.status(500).json({
+    return res.status(500).json({
       error: "Failed to create journal entry",
     });
   }
@@ -191,27 +202,26 @@ export async function updateJournalEntry(
       });
     }
 
-    const id = parsedId.data;
-    const { content } = parsedBody.data;
-
     const entry = await prisma.journalEntry.update({
       where: {
-        id,
+        id: parsedId.data,
+        userId: req.user!.id,
       },
       data: {
-        content,
+        content: parsedBody.data.content,
       },
     });
 
-    res.json(entry);
+    return res.json(entry);
   } catch (error) {
     if (isRecordNotFound(error)) {
       return res.status(404).json({
         error: "Journal entry not found",
       });
     }
+
     console.error(error);
-    res.status(500).json({
+    return res.status(500).json({
       error: "Failed to update journal entry",
     });
   }
@@ -230,23 +240,23 @@ export async function deleteJournalEntry(
       });
     }
 
-    const id = parsed.data;
-
     await prisma.journalEntry.delete({
       where: {
-        id,
+        id: parsed.data,
+        userId: req.user!.id,
       },
     });
 
-    res.status(204).send();
+    return res.status(204).send();
   } catch (error) {
     if (isRecordNotFound(error)) {
       return res.status(404).json({
         error: "Journal entry not found",
       });
     }
+
     console.error(error);
-    res.status(500).json({
+    return res.status(500).json({
       error: "Failed to delete journal entry",
     });
   }

@@ -270,6 +270,7 @@ describe("journal", () => {
 
     expect(res.status).toBe(200);
     expect(prismaMock.journalEntry.findMany.mock.calls[0]?.[0]?.where).toEqual({
+      userId: 1,
       createdAt: { gte: new Date(from), lt: new Date(to) },
     });
   });
@@ -322,6 +323,9 @@ describe("journal", () => {
     expect(firstActivity.body).toBe(createdAt.toISOString());
     expect(noActivity.body).toBeNull();
     expect(prismaMock.journalEntry.findFirst).toHaveBeenCalledWith({
+      where: {
+        userId: 1,
+      },
       select: { createdAt: true },
       orderBy: { createdAt: "asc" },
     });
