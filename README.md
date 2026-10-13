@@ -1,196 +1,90 @@
-# Journal Habit Tracker
+# Hibi
 
-A personal journaling app with a GitHub-style habit tracker: check off habits daily, write Markdown journal entries (as many as you like per day), and browse both as yearly heatmaps.
+**A personal journaling and habit-tracking app designed to help people reflect, build consistency, and understand their own growth.**
 
-## Features
+Hibi combines a daily journal with a habit tracker. Its design direction is warm and minimal, inspired by paper journals and literary typography. The longer-term vision is to help people discover connections across their past writing without taking control away from them.
 
-* **Dashboard:** today's habits and journal, plus habit and journal heatmaps. Click a habit day to see what you completed; click a journal day to open it in History.
-* **Habits:** add, edit, archive and delete habits, with streaks and per-habit heatmaps.
-* **Journal:** Markdown editor with live preview, draft autosave and Ctrl+Enter to save; History lists entries per day.
+> **Project status:** Active development. Core journaling, habit tracking, and authentication flows have been implemented and tested locally. Production deployment and the private beta are planned, not yet complete.
+
+## Why Hibi?
+
+Journaling helps people reflect, but old entries can become difficult to revisit. Habit trackers make consistency visible, but they can feel disconnected from the experiences behind a person's routines.
+
+Hibi brings these practices together: users can record thoughts, review previous entries, and track habits over time in one personal space.
+
+## Current features
+
+- **Journal entries:** Write and manage journal entries.
+- **Journal history:** Browse past writing through a notebook-style presentation.
+- **Draft recovery:** New-entry drafts and edits to existing entries are persisted in browser `localStorage`, helping recover unfinished writing after refreshes or session expiry.
+- **Habit tracking:** Create and manage habits, record completions, and review activity through heatmaps.
+- **User accounts:** Register, log in, and log out.
+- **Protected data:** Journal entries, habits, and habit completions are scoped to the authenticated user.
+- **Session handling:** Server-side sessions use random tokens, with only token hashes stored in the database. The browser receives an `HttpOnly` session cookie.
+- **Expired-session handling:** Protected API requests that return `401` clear the client query cache and redirect the user to login.
+
+See [the feature status](docs/roadmap.md) for the distinction between implemented and planned work.
 
 ## Tech stack
 
-* **Client:** React 19, TypeScript, Vite, Tailwind CSS 4, React Router, TanStack Query
-* **API:** Node.js, Express 5, TypeScript, Prisma ORM, Zod
-* **Database:** PostgreSQL
-* **Tests:** Vitest, Testing Library, Supertest, PostgreSQL integration tests
-* **CI:** GitHub Actions
+| Layer | Technology |
+|---|---|
+| Frontend | React, TypeScript, Vite |
+| Routing and data fetching | React Router, TanStack Query |
+| Styling and icons | Tailwind CSS, lucide-react |
+| Backend | Node.js, Express 5, TypeScript |
+| Database access | Prisma ORM |
+| Database | PostgreSQL |
+| Authentication | Argon2 password hashing, server-side sessions, HTTP cookies |
+| Testing | Frontend lint/build/tests and backend integration tests |
 
-## Project structure
+The project is organized as a client and server application in one repository. See [Architecture](docs/architecture.md).
 
-```text
-client/   React + Vite frontend
-server/   Express API + Prisma schema, migrations and tests
-design/   NEW_DESIGN.md and CODEBASE_GUIDE.md
-```
+## Getting started
 
-New to this stack? Read the [codebase guide](design/CODEBASE_GUIDE.md) for a beginner-friendly tour and how data flows through the app. Frontend contributors should also read the [frontend guide](design/FRONTEND_GUIDE.md).
+Exact scripts and environment variable names can evolve. Use the current `package.json` files and the environment examples in [Development setup](docs/development.md) as the source of truth.
 
-## Data model notes
+At a high level:
 
-* **Habit completions** are calendar days (`YYYY-MM-DD`, the user's local date). `GET /api/habits/completions` returns the last 366 days by default; pass `from`/`to` (max 400 days) for other periods.
-* **Journal entries** are timestamps, so there can be many per day. The client asks for a local-day range with `GET /api/journal?from=&to=` (ISO timestamps with offset, `from` inclusive, `to` exclusive).
-* Deleting a habit is permanent and removes its completions; archive it to keep the history.
-* There is no authentication yet, so don't expose the API publicly.
-* A habit can have at most one completion for a given date. This is enforced by the PostgreSQL unique constraint on `(habitId, date)`.
+1. Install the dependencies for the client and server.
+2. Create local environment files from the project's expected variables.
+3. Start a local PostgreSQL database.
+4. Apply Prisma migrations.
+5. Start the API server and Vite development server.
+6. Open the local frontend and register an account.
 
-## Prerequisites
+Do not commit `.env` files or real credentials. See [Development setup](docs/development.md).
 
-* Node.js 20 or later and npm
-* PostgreSQL 14 or later
-* Git
+## Security notes
 
-## Set up
+Hibi stores personal writing, so privacy and data safety are core product requirements.
 
-### 1. Create a PostgreSQL database
+- API reads and mutations for journal and habit data are scoped to the authenticated user.
+- Passwords are hashed using Argon2id.
+- Session tokens are generated randomly; token hashes, rather than raw tokens, are stored in the database.
+- The session cookie is configured as `HttpOnly`, `SameSite=Lax`, and `Secure` in production.
+- Production CORS, HTTPS, environment variables, backups, and deployment behavior still need to be reviewed and verified before inviting beta users.
 
-Install PostgreSQL using the [official installer](https://www.postgresql.org/download/) for your platform, then create a database named `journal_tracker` (for example, through pgAdmin).
+See [Security and privacy](docs/security.md).
 
-The `journal_tracker` database is the development database. A separate database is used for integration tests; see [Testing](#testing).
+## Roadmap
 
-### 2. Clone the repository and install dependencies
+### Planned
+- Production deployment and configuration review.
+- Invite-only private beta using unique, single-use invitation codes.
+- Operational backup and restore procedures.
+- Hibi Explore: suggest related journal entries and let users accept, reject, or manually create relationships.
+- Book compilation: allow users to collect selected entries into a meaningful, searchable collection.
 
-```bash
-git clone <repo-url>
+Planned features are not represented as implemented functionality. See [Roadmap and status](docs/roadmap.md).
 
-cd journal-habit-tracker
+## Documentation
 
-cd server
-npm install
+- [Architecture](docs/architecture.md)
+- [Development setup](docs/development.md)
+- [Security and privacy](docs/security.md)
+- [Roadmap and status](docs/roadmap.md)
 
-cd ../client
-npm install
-```
+## Project philosophy
 
-### 3. Configure the server
-
-Create `server/.env` with your PostgreSQL connection details:
-
-```env
-DATABASE_URL="postgresql://postgres:your_password@localhost:5432/journal_tracker"
-```
-
-Replace `your_password` with the password for your PostgreSQL user. If the password contains URL-reserved characters, percent-encode them in the connection URL.
-
-The server also accepts these optional settings:
-
-| Variable     | Default                 | Purpose                       |
-| ------------ | ----------------------- | ----------------------------- |
-| `PORT`       | `3000`                  | Port used by the API server   |
-| `CLIENT_URL` | `http://localhost:5173` | Client origin allowed by CORS |
-
-### 4. Create the database schema
-
-From the `server` directory, apply the checked-in migrations and generate the Prisma Client:
-
-```bash
-npx prisma migrate dev
-```
-
-Run this again after pulling changes that add new migrations.
-
-### 5. Start the app
-
-Open two terminals in the repository.
-
-**API server** (terminal 1):
-
-```bash
-cd server
-npm run dev
-```
-
-The API runs at `http://localhost:3000` by default. Its health endpoint is `http://localhost:3000/api/health`.
-
-**Client** (terminal 2):
-
-```bash
-cd client
-npm run dev
-```
-
-Open the URL printed by Vite (typically `http://localhost:5173`).
-
-The client uses `http://localhost:3000/api` by default. To use another API URL, create `client/.env` and set:
-
-```env
-VITE_API_URL="http://localhost:3000/api"
-```
-
-## Testing
-
-Hibi uses several levels of tests so that different parts of the application can be tested independently.
-
-### Client tests
-
-Client tests cover pure helper functions as well as React hooks and components.
-
-From `client/`:
-
-```bash
-npm test
-```
-
-### Server API tests
-
-The main server API suite uses Vitest and Supertest. Prisma is mocked in these tests.
-
-This makes the tests fast and allows specific database errors such as Prisma `P2002` and `P2025` to be simulated.
-
-From `server/`:
-
-```bash
-npm test
-```
-
-These tests verify API behaviour such as:
-
-* request validation
-* HTTP status codes
-* controller behaviour
-* error handling
-* route behaviour
-
-### PostgreSQL integration tests
-
-The integration suite uses the **real PostgreSQL database**, rather than a mocked Prisma client.
-
-The test flow is:
-
-```text
-Supertest
-    ↓
-Express
-    ↓
-Controllers
-    ↓
-Prisma
-    ↓
-PostgreSQL test database
-```
-
-The integration tests currently verify:
-
-1. Creating a habit actually persists a row in PostgreSQL.
-2. PostgreSQL rejects duplicate habit completions through the `(habitId, date)` unique constraint, producing Prisma `P2002` and an HTTP `409`.
-3. Deleting a habit cascades to its completions through the database foreign-key relationship.
-
-### Setting up the test database
-
-Create a separate PostgreSQL database named:
-
-```text
-journal_tracker_test
-```
-
-Do not use the development database for integration tests.
-
-Create `server/.env.test`:
-
-```env
-DATABASE_URL="postgresql://postgres:your_password@localhost:5432/journal_tracker_test"
-```
-
-Replace `your_password` with your PostgreSQL password.
-
-The test database
+Hibi should help users reflect without making them feel judged or overwhelmed. Habit tracking should support consistency, while journaling remains a personal space. Future AI features should assist discovery and organization while leaving users in control of their writing and the relationships they choose to keep.
