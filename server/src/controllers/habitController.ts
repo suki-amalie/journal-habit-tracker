@@ -44,7 +44,7 @@ export async function getHabits(req: Request, res: Response) {
     console.error("getHabits failed:", error);
 
     res.status(500).json({
-      error:  error instanceof Error ? error.message : String(error),
+      error: error instanceof Error ? error.message : String(error),
     });
   }
 }
@@ -105,6 +105,7 @@ export async function updateHabit(req: Request, res: Response) {
     const habit = await prisma.habit.update({
       where: {
         id: parsedId.data,
+        userId: req.user!.id,
       },
       data: {
         ...(name !== undefined && { name }),
@@ -146,6 +147,7 @@ export async function deleteHabit(req: Request, res: Response) {
     await prisma.habit.delete({
       where: {
         id: parsedId.data,
+        userId: req.user!.id,
       },
     });
 
@@ -203,6 +205,7 @@ export async function createHabitCompletion(req: Request, res: Response) {
     const habit = await prisma.habit.findUnique({
       where: {
         id: habitId,
+        userId: req.user!.id,
       },
     });
 
@@ -254,6 +257,21 @@ export async function deleteHabitCompletion(req: Request, res: Response) {
 
     const { id: habitId, date } = parsed.data;
 
+    const habit = await prisma.habit.findFirst({
+      where: {
+        id: habitId,
+        userId: req.user!.id,
+      },
+      select: {
+        id: true,
+      },
+    });
+    if (!habit) {
+      return res.status(404).json({
+        error: "Habit not found",
+      });
+    }
+
     await prisma.habitCompletion.delete({
       where: {
         habitId_date: {
@@ -262,8 +280,7 @@ export async function deleteHabitCompletion(req: Request, res: Response) {
         },
       },
     });
-
-    res.status(204).send();
+    return res.status(204).send();
   } catch (error) {
     if (isRecordNotFound(error)) {
       return res.status(404).json({
@@ -287,6 +304,22 @@ export async function getHabitCompletions(req: Request, res: Response) {
     if (!parsedId.success) {
       return res.status(400).json({
         error: "Invalid habit ID",
+      });
+    }
+
+    const habit = await prisma.habit.findFirst({
+      where: {
+        id: parsedId.data,
+        userId: req.user!.id,
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    if (!habit) {
+      return res.status(404).json({
+        error: "Habit not found",
       });
     }
 
@@ -332,6 +365,11 @@ export async function getAllHabitCompletions(req: Request, res: Response) {
 
     const completions = await prisma.habitCompletion.findMany({
       where: {
+        habit: {
+          is: {
+            userId: req.user!.id,
+          },
+        },
         date: {
           gte: new Date(`${fromDate}T00:00:00.000Z`),
           lte: new Date(`${toDate}T00:00:00.000Z`),
