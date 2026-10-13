@@ -82,3 +82,79 @@ Planned features are not represented as implemented functionality. See [Roadmap 
 ## Project philosophy
 
 Hibi should help users reflect without making them feel judged or overwhelmed. Habit tracking should support consistency, while journaling remains a personal space. Future AI features should assist discovery and organization while leaving users in control of their writing and the relationships they choose to keep.
+
+## Testing
+
+Hibi uses several levels of tests so that different parts of the application can be tested independently.
+
+### Client tests
+
+Client tests cover pure helper functions as well as React hooks and components.
+
+From `client/`:
+
+```bash
+npm test
+```
+
+### Server API tests
+
+The main server API suite uses Vitest and Supertest. Prisma is mocked in these tests.
+
+This makes the tests fast and allows specific database errors such as Prisma `P2002` and `P2025` to be simulated.
+
+From `server/`:
+
+```bash
+npm test
+```
+
+These tests verify API behaviour such as:
+
+* request validation
+* HTTP status codes
+* controller behaviour
+* error handling
+* route behaviour
+
+### PostgreSQL integration tests
+
+The integration suite uses the **real PostgreSQL database**, rather than a mocked Prisma client.
+
+The test flow is:
+
+```text
+Supertest
+    ↓
+Express
+    ↓
+Controllers
+    ↓
+Prisma
+    ↓
+PostgreSQL test database
+```
+
+The integration tests currently verify:
+
+1. Creating a habit actually persists a row in PostgreSQL.
+2. PostgreSQL rejects duplicate habit completions through the `(habitId, date)` unique constraint, producing Prisma `P2002` and an HTTP `409`.
+3. Deleting a habit cascades to its completions through the database foreign-key relationship.
+
+### Setting up the test database
+
+Create a separate PostgreSQL database named:
+
+```text
+journal_tracker_test
+```
+
+Do not use the development database for integration tests.
+
+Create `server/.env.test`:
+
+```env
+DATABASE_URL="postgresql://postgres:your_password@localhost:5432/journal_tracker_test"
+```
+
+Replace `your_password` with your PostgreSQL password.
