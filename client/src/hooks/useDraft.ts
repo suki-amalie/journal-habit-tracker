@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
-// Persists text to localStorage as the user types, so a refresh or crash doesn't lose it.
+// Persists text to localStorage immediately when the draft changes.
 export function useDraft(key: string) {
-  const [draft, setDraft] = useState(() => {
+  const [draft, setDraftState] = useState(() => {
     try {
       return localStorage.getItem(key) ?? "";
     } catch {
@@ -10,18 +10,21 @@ export function useDraft(key: string) {
     }
   });
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      try {
-        if (draft === "") localStorage.removeItem(key);
-        else localStorage.setItem(key, draft);
-      } catch {
-        // Storage unavailable (private mode / quota); autosave is best-effort.
-      }
-    }, 400);
+  function setDraft(value: string) {
+    // Update the UI immediately.
+    setDraftState(value);
 
-    return () => clearTimeout(timer);
-  }, [key, draft]);
+    // Persist the latest text before returning.
+    try {
+      if (value === "") {
+        localStorage.removeItem(key);
+      } else {
+        localStorage.setItem(key, value);
+      }
+    } catch {
+      // Storage unavailable (private mode / quota); persistence is best-effort.
+    }
+  }
 
   return [draft, setDraft] as const;
 }
