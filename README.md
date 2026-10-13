@@ -6,12 +6,6 @@ Hibi combines a daily journal with a habit tracker. Its design direction is warm
 
 > **Project status:** Active development. Core journaling, habit tracking, and authentication flows have been implemented and tested locally. Production deployment and the private beta are planned, not yet complete.
 
-## Why Hibi?
-
-Journaling helps people reflect, but old entries can become difficult to revisit. Habit trackers make consistency visible, but they can feel disconnected from the experiences behind a person's routines.
-
-Hibi brings these practices together: users can record thoughts, review previous entries, and track habits over time in one personal space.
-
 ## Current features
 
 - **Journal entries:** Write and manage journal entries.
