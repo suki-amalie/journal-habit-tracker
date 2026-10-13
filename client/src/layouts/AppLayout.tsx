@@ -12,7 +12,7 @@ import ErrorBoundary from "../components/ErrorBoundary";
 import ShortcutsHelp from "../components/ShortcutsHelp";
 import { useHotkey } from "../hooks/useHotkey";
 import { usePersistentToggle } from "../hooks/usePersistentToggle";
-import { useLogout } from "../hooks/useLogout";
+import { useLogout } from "../hooks/useLogOut";
 
 function AppLayout() {
   const { pathname } = useLocation();

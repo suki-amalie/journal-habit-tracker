@@ -8,12 +8,14 @@ import Journal from "./pages/Journal";
 import JournalHistory from "./pages/JournalHistory";
 import ProtectedRoute from "./components/ProtectedRoutes";
 import Login from "./pages/Login";
+import Register from "./pages/Register"
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
 
         {/* All routes inside this wrapper require authentication. */}
         <Route element={<ProtectedRoute />}>

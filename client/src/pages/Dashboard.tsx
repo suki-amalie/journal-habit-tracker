@@ -15,6 +15,7 @@ import {
 import { useJournalActivity } from "../hooks/useJournalActivity";
 import { useJournalEntries } from "../hooks/useJournalEntries";
 import { useHotkey } from "../hooks/useHotkey";
+import { useCurrentUser } from "../hooks/useCurrentUser";
 
 import { getTodayDate } from "../utils/date";
 import { getCompletionCountByDate } from "../utils/habit";
@@ -45,6 +46,7 @@ function getGreeting(hour: number): string {
 function Dashboard() {
   const navigate = useNavigate();
   const today = getTodayDate();
+  const {  data: user  } = useCurrentUser();
 
   // Each heatmap keeps its own year so switching tabs does not reset navigation.
   const currentYear = Number(today.slice(0, 4));
@@ -61,6 +63,7 @@ function Dashboard() {
     habitYear,
     habitYear !== currentYear,
   );
+  
   const completions =
     habitYear === currentYear ? recentCompletions : pastCompletions.completions;
   const {
@@ -91,6 +94,7 @@ function Dashboard() {
   }, [view, habitCountsByDate, journalCountsByDate]);
 
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
+
   useHotkey("t", () =>
     setView((current) => (current === "habits" ? "journal" : "habits")),
   );
@@ -125,6 +129,7 @@ function Dashboard() {
 
         <h1 className="relative font-serif text-5xl leading-tight text-[#292824]">
           {greeting}
+          {user?.username ? `, ${user.username}` : ""}
           <span className="text-drop-pink">.</span>
         </h1>
 

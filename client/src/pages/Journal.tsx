@@ -60,7 +60,7 @@ function Journal() {
   );
 
   return (
-    <div className="mx-auto flex h-full max-w-7xl flex-col px-4 pb-4">
+    <div className="mx-auto flex h-full max-w-7xl flex-col px-3 pb-3">
       <div className="mb-3 flex shrink-0 items-baseline justify-between">
         <h1 className="font-serif text-3xl text-[#292824]">
           Write
@@ -75,7 +75,7 @@ function Journal() {
         </p>
       </div>
 
-      <div className="min-h-0 flex-1">
+      <div className="relative min-h-0 min-w-0 flex-1">
         <JournalDayBook
           entries={todayEntries.entries}
           onEdit={todayEntries.editEntry}
