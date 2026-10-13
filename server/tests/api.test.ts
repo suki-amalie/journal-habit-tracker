@@ -8,6 +8,7 @@ const prismaMock = vi.hoisted(() => ({
     delete: vi.fn(),
   },
   habit: {
+    findFirst: vi.fn(),
     findMany: vi.fn(),
     findUnique: vi.fn(),
     create: vi.fn(),
@@ -85,12 +86,12 @@ describe("habits", () => {
     prismaMock.habit.findMany.mockResolvedValue([]);
 
     const res = await api.get("/api/habits");
-    console.log("Response:", res.status, res.body);
-    console.log("Response:", res.status, JSON.stringify(res.body, null, 2));
-    console.log(
-      "findMany calls:",
-      JSON.stringify(prismaMock.habit.findMany.mock.calls, null, 2),
-    );
+    //console.log("Response:", res.status, res.body);
+    //console.log("Response:", res.status, JSON.stringify(res.body, null, 2));
+    // //console.log(
+    //   "findMany calls:",
+    //   JSON.stringify(prismaMock.habit.findMany.mock.calls, null, 2),
+    // );
     expect(res.status, JSON.stringify(res.body)).toBe(200);
     expect(prismaMock.habit.findMany.mock.calls[0]?.[0]?.where).toEqual({
       userId: TEST_USER.id,
@@ -215,13 +216,19 @@ describe("habit completions", () => {
   });
 
   it("deletes a completion and 404s when it doesn't exist", async () => {
-    prismaMock.habitCompletion.delete.mockResolvedValueOnce({});
+    // The habit belongs to the authenticated user.
+    prismaMock.habit.findFirst.mockResolvedValue({
+      id: 1,
+    } as never);
+    // First request: completion exists and is deleted successfully.
+    prismaMock.habitCompletion.delete.mockResolvedValue({} as never);
+
     expect((await api.delete(`${url}/2020-01-01`)).status).toBe(204);
 
-    prismaMock.habitCompletion.delete.mockRejectedValueOnce(
-      prismaError("P2025"),
-    );
-    expect((await api.delete(`${url}/2020-01-01`)).status).toBe(404);
+    // Second request: the habit exists, but its completion does not.
+    prismaMock.habitCompletion.delete.mockRejectedValue(prismaError("P2025"));
+
+    expect((await api.delete(`${url}/2020-01-02`)).status).toBe(404);
   });
 
   it("rejects a range where from is after to", async () => {
@@ -309,6 +316,17 @@ describe("journal", () => {
     const res = await api.get("/api/journal/activity").query({ from, to });
 
     expect(res.body).toEqual([createdAt.toISOString()]);
+    expect(prismaMock.journalEntry.findMany).toHaveBeenCalledWith({
+      where: {
+        userId: 1,
+        createdAt: {
+          gte: new Date(from),
+          lt: new Date(to),
+        },
+      },
+      select: { createdAt: true },
+      orderBy: { createdAt: "asc" },
+    });
   });
 
   it("returns the first journal activity timestamp or null", async () => {
@@ -371,5 +389,54 @@ describe("journal", () => {
 
     expect(res.status).toBe(200);
     expect(prismaMock.journalEntry.findUnique).not.toHaveBeenCalled();
+  });
+
+  it("cannot read another user's journal entry", async () => {
+    // User A requests an entry that does not belong to them.
+    // The user-scoped query must not find User B's entry.
+    prismaMock.journalEntry.findFirst.mockResolvedValue(null);
+
+    const res = await api.get("/api/journal/42");
+
+    expect(res.status).toBe(404);
+    expect(prismaMock.journalEntry.findFirst).toHaveBeenCalledWith({
+      where: {
+        id: 42,
+        userId: 1,
+      },
+    });
+  });
+
+  it("cannot update another user's journal entry", async () => {
+    // Prisma returns P2025 when no entry matches both the ID and owner.
+    prismaMock.journalEntry.update.mockRejectedValue(prismaError("P2025"));
+
+    const res = await api.put("/api/journal/42").send({
+      content: "Trying to change someone else's entry",
+    });
+
+    expect(res.status).toBe(404);
+    expect(prismaMock.journalEntry.update).toHaveBeenCalledWith({
+      where: {
+        id: 42,
+        userId: 1,
+      },
+      data: {
+        content: "Trying to change someone else's entry",
+      },
+    });
+  });
+  it("cannot delete another user's journal entry", async () => {
+    prismaMock.journalEntry.delete.mockRejectedValue(prismaError("P2025"));
+
+    const res = await api.delete("/api/journal/42");
+
+    expect(res.status).toBe(404);
+    expect(prismaMock.journalEntry.delete).toHaveBeenCalledWith({
+      where: {
+        id: 42,
+        userId: 1,
+      },
+    });
   });
 });
