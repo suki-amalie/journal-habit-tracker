@@ -5,12 +5,14 @@ import {
   LayoutDashboard,
   CheckSquare,
   BookOpen,
+  LogOut,
 } from "lucide-react";
 import { Outlet, useLocation, Link, useNavigate } from "react-router-dom";
 import ErrorBoundary from "../components/ErrorBoundary";
 import ShortcutsHelp from "../components/ShortcutsHelp";
 import { useHotkey } from "../hooks/useHotkey";
 import { usePersistentToggle } from "../hooks/usePersistentToggle";
+import { useLogout } from "../hooks/useLogout";
 
 function AppLayout() {
   const { pathname } = useLocation();
@@ -19,6 +21,7 @@ function AppLayout() {
     "layout:sidebar-collapsed",
   );
   const [helpOpen, setHelpOpen] = useState(false);
+  const logout = useLogout();
 
   useHotkey("b", toggleCollapsed);
   useHotkey("?", () => setHelpOpen((open) => !open));
@@ -145,6 +148,37 @@ function AppLayout() {
                 Shortcuts
               </span>
             </button>
+
+            <button
+              type="button"
+              onClick={() => logout.mutate()}
+              disabled={logout.isPending}
+              title={collapsed ? "Log out" : undefined}
+              className={`mt-1 flex h-10 w-full items-center rounded-xl text-sm text-[#D8C8BA] transition-colors duration-200 hover:bg-[#6c4d3f] hover:text-[#F7F3EA] disabled:cursor-not-allowed disabled:opacity-60 ${
+                collapsed ? "justify-center" : "gap-3 px-3"
+              }`}
+            >
+              <LogOut size={18} className="shrink-0" />
+
+              <span
+                className={`whitespace-nowrap transition-all duration-150 ${
+                  collapsed
+                    ? "pointer-events-none w-0 -translate-x-2 opacity-0"
+                    : "w-auto translate-x-0 opacity-100"
+                }`}
+              >
+                {logout.isPending ? "Logging out..." : "Log out"}
+              </span>
+            </button>
+
+            {logout.isError && (
+              <p
+                role="alert"
+                className="mt-2 px-3 text-xs leading-5 text-[#F2B5C8]"
+              >
+                Couldn't log out. Please try again.
+              </p>
+            )}
           </div>
         </div>
       </aside>
