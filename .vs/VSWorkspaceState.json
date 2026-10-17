@@ -1,0 +1,16 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\client",
+    "\\client\\src",
+    "\\client\\src\\hooks",
+    "\\client\\src\\types",
+    "\\docs",
+    "\\docs\\database",
+    "\\docs\\screenshots",
+    "\\server",
+    "\\server\\prisma"
+  ],
+  "SelectedNode": "\\docs\\CODEBASE_GUIDE.md",
+  "PreviewInSolutionExplorer": false
+}

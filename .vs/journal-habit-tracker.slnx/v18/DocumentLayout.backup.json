@@ -1,0 +1,294 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\Mukha\\journal-habit-tracker\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Mukha\\journal-habit-tracker\\server\\prisma\\schema.prisma||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:server\\prisma\\schema.prisma||{8B382828-6202-11D1-8870-0000F87579D2}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Mukha\\journal-habit-tracker\\client\\src\\types\\timedMessage.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:client\\src\\types\\timedMessage.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Mukha\\journal-habit-tracker\\client\\src\\hooks\\useTimeCapsule.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:client\\src\\hooks\\useTimeCapsule.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Mukha\\journal-habit-tracker\\client\\src\\hooks\\useLetters.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:client\\src\\hooks\\useLetters.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Mukha\\journal-habit-tracker\\client\\src\\services\\timerService.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:client\\src\\services\\timerService.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Mukha\\journal-habit-tracker\\docs\\CODEBASE_GUIDE.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:docs\\CODEBASE_GUIDE.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Mukha\\journal-habit-tracker\\server\\src\\validation\\schemas.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:server\\src\\validation\\schemas.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Mukha\\journal-habit-tracker\\client\\src\\services\\habitService.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:client\\src\\services\\habitService.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Mukha\\journal-habit-tracker\\client\\src\\types\\habit.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:client\\src\\types\\habit.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Mukha\\journal-habit-tracker\\client\\src\\pages\\Register.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:client\\src\\pages\\Register.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Mukha\\journal-habit-tracker\\docs\\TEMP_FEATURE_TimeCapsule_Letters.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:docs\\TEMP_FEATURE_TimeCapsule_Letters.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Mukha\\journal-habit-tracker\\client\\src\\pages\\Habits.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:client\\src\\pages\\Habits.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Mukha\\journal-habit-tracker\\client\\src\\hooks\\useHabitsCompletions.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:client\\src\\hooks\\useHabitsCompletions.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Mukha\\journal-habit-tracker\\client\\src\\hooks\\useHabits.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:client\\src\\hooks\\useHabits.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Mukha\\journal-habit-tracker\\client\\src\\components\\AddHabitModal.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:client\\src\\components\\AddHabitModal.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Mukha\\journal-habit-tracker\\client\\src\\components\\InkDrops.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:client\\src\\components\\InkDrops.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 199,
+          "SelectedChildIndex": 2,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 15,
+              "Title": "InkDrops.tsx",
+              "DocumentMoniker": "C:\\Users\\Mukha\\journal-habit-tracker\\client\\src\\components\\InkDrops.tsx",
+              "RelativeDocumentMoniker": "client\\src\\components\\InkDrops.tsx",
+              "ToolTip": "C:\\Users\\Mukha\\journal-habit-tracker\\client\\src\\components\\InkDrops.tsx",
+              "RelativeToolTip": "client\\src\\components\\InkDrops.tsx",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAABPAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-10-09T17:13:39.951Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "TEMP_FEATURE_TimeCapsule_Letters.md",
+              "DocumentMoniker": "C:\\Users\\Mukha\\journal-habit-tracker\\docs\\TEMP_FEATURE_TimeCapsule_Letters.md",
+              "RelativeDocumentMoniker": "docs\\TEMP_FEATURE_TimeCapsule_Letters.md",
+              "ToolTip": "C:\\Users\\Mukha\\journal-habit-tracker\\docs\\TEMP_FEATURE_TimeCapsule_Letters.md",
+              "RelativeToolTip": "docs\\TEMP_FEATURE_TimeCapsule_Letters.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAUAAABNAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-10-16T14:39:27.146Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "schema.prisma",
+              "DocumentMoniker": "C:\\Users\\Mukha\\journal-habit-tracker\\server\\prisma\\schema.prisma",
+              "RelativeDocumentMoniker": "server\\prisma\\schema.prisma",
+              "ToolTip": "C:\\Users\\Mukha\\journal-habit-tracker\\server\\prisma\\schema.prisma",
+              "RelativeToolTip": "server\\prisma\\schema.prisma",
+              "ViewState": "AgIAAHgAAAAAAAAAAAAAAG4AAAAbAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2026-10-16T14:19:55.563Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "habit.ts",
+              "DocumentMoniker": "C:\\Users\\Mukha\\journal-habit-tracker\\client\\src\\types\\habit.ts",
+              "RelativeDocumentMoniker": "client\\src\\types\\habit.ts",
+              "ToolTip": "C:\\Users\\Mukha\\journal-habit-tracker\\client\\src\\types\\habit.ts",
+              "RelativeToolTip": "client\\src\\types\\habit.ts",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAuwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-10-15T09:59:44.027Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "useHabitsCompletions.ts",
+              "DocumentMoniker": "C:\\Users\\Mukha\\journal-habit-tracker\\client\\src\\hooks\\useHabitsCompletions.ts",
+              "RelativeDocumentMoniker": "client\\src\\hooks\\useHabitsCompletions.ts",
+              "ToolTip": "C:\\Users\\Mukha\\journal-habit-tracker\\client\\src\\hooks\\useHabitsCompletions.ts",
+              "RelativeToolTip": "client\\src\\hooks\\useHabitsCompletions.ts",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-10-15T09:48:40.108Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "useHabits.ts",
+              "DocumentMoniker": "C:\\Users\\Mukha\\journal-habit-tracker\\client\\src\\hooks\\useHabits.ts",
+              "RelativeDocumentMoniker": "client\\src\\hooks\\useHabits.ts",
+              "ToolTip": "C:\\Users\\Mukha\\journal-habit-tracker\\client\\src\\hooks\\useHabits.ts",
+              "RelativeToolTip": "client\\src\\hooks\\useHabits.ts",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAARAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-10-15T09:48:36.219Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "habitService.ts",
+              "DocumentMoniker": "C:\\Users\\Mukha\\journal-habit-tracker\\client\\src\\services\\habitService.ts",
+              "RelativeDocumentMoniker": "client\\src\\services\\habitService.ts",
+              "ToolTip": "C:\\Users\\Mukha\\journal-habit-tracker\\client\\src\\services\\habitService.ts",
+              "RelativeToolTip": "client\\src\\services\\habitService.ts",
+              "ViewState": "AgIAACoAAAAAAAAAAAAAABsAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-10-15T09:52:16.252Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "Habits.tsx",
+              "DocumentMoniker": "C:\\Users\\Mukha\\journal-habit-tracker\\client\\src\\pages\\Habits.tsx",
+              "RelativeDocumentMoniker": "client\\src\\pages\\Habits.tsx",
+              "ToolTip": "C:\\Users\\Mukha\\journal-habit-tracker\\client\\src\\pages\\Habits.tsx",
+              "RelativeToolTip": "client\\src\\pages\\Habits.tsx",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAAMAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-10-15T09:46:18.92Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "Register.tsx",
+              "DocumentMoniker": "C:\\Users\\Mukha\\journal-habit-tracker\\client\\src\\pages\\Register.tsx",
+              "RelativeDocumentMoniker": "client\\src\\pages\\Register.tsx",
+              "ToolTip": "C:\\Users\\Mukha\\journal-habit-tracker\\client\\src\\pages\\Register.tsx",
+              "RelativeToolTip": "client\\src\\pages\\Register.tsx",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAE4AAAAXAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-10-15T09:11:42.481Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "schemas.ts",
+              "DocumentMoniker": "C:\\Users\\Mukha\\journal-habit-tracker\\server\\src\\validation\\schemas.ts",
+              "RelativeDocumentMoniker": "server\\src\\validation\\schemas.ts",
+              "ToolTip": "C:\\Users\\Mukha\\journal-habit-tracker\\server\\src\\validation\\schemas.ts",
+              "RelativeToolTip": "server\\src\\validation\\schemas.ts",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABIAAAANAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-10-15T10:06:09.815Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 14,
+              "Title": "AddHabitModal.tsx",
+              "DocumentMoniker": "C:\\Users\\Mukha\\journal-habit-tracker\\client\\src\\components\\AddHabitModal.tsx",
+              "RelativeDocumentMoniker": "client\\src\\components\\AddHabitModal.tsx",
+              "ToolTip": "C:\\Users\\Mukha\\journal-habit-tracker\\client\\src\\components\\AddHabitModal.tsx",
+              "RelativeToolTip": "client\\src\\components\\AddHabitModal.tsx",
+              "ViewState": "AgIAAAoAAAAAAAAAAAAmwDwAAABHAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-10-15T08:10:07.169Z"
+            }
+          ]
+        },
+        {
+          "DockedWidth": 201,
+          "SelectedChildIndex": 4,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "CODEBASE_GUIDE.md",
+              "DocumentMoniker": "C:\\Users\\Mukha\\journal-habit-tracker\\docs\\CODEBASE_GUIDE.md",
+              "RelativeDocumentMoniker": "docs\\CODEBASE_GUIDE.md",
+              "ToolTip": "C:\\Users\\Mukha\\journal-habit-tracker\\docs\\CODEBASE_GUIDE.md",
+              "RelativeToolTip": "docs\\CODEBASE_GUIDE.md",
+              "ViewState": "AgIAAIgAAAAAAAAAAAAWwEoAAAAeAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-10-16T15:19:11.849Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "timerService.ts",
+              "DocumentMoniker": "C:\\Users\\Mukha\\journal-habit-tracker\\client\\src\\services\\timerService.ts",
+              "RelativeDocumentMoniker": "client\\src\\services\\timerService.ts",
+              "ToolTip": "C:\\Users\\Mukha\\journal-habit-tracker\\client\\src\\services\\timerService.ts",
+              "RelativeToolTip": "client\\src\\services\\timerService.ts",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACMAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-10-15T09:52:09.323Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "useLetters.ts",
+              "DocumentMoniker": "C:\\Users\\Mukha\\journal-habit-tracker\\client\\src\\hooks\\useLetters.ts",
+              "RelativeDocumentMoniker": "client\\src\\hooks\\useLetters.ts",
+              "ToolTip": "C:\\Users\\Mukha\\journal-habit-tracker\\client\\src\\hooks\\useLetters.ts",
+              "RelativeToolTip": "client\\src\\hooks\\useLetters.ts",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-10-15T09:56:37.442Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "useTimeCapsule.ts",
+              "DocumentMoniker": "C:\\Users\\Mukha\\journal-habit-tracker\\client\\src\\hooks\\useTimeCapsule.ts",
+              "RelativeDocumentMoniker": "client\\src\\hooks\\useTimeCapsule.ts",
+              "ToolTip": "C:\\Users\\Mukha\\journal-habit-tracker\\client\\src\\hooks\\useTimeCapsule.ts",
+              "RelativeToolTip": "client\\src\\hooks\\useTimeCapsule.ts",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-10-16T15:08:57.333Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "timedMessage.ts",
+              "DocumentMoniker": "C:\\Users\\Mukha\\journal-habit-tracker\\client\\src\\types\\timedMessage.ts",
+              "RelativeDocumentMoniker": "client\\src\\types\\timedMessage.ts",
+              "ToolTip": "C:\\Users\\Mukha\\journal-habit-tracker\\client\\src\\types\\timedMessage.ts",
+              "RelativeToolTip": "client\\src\\types\\timedMessage.ts",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAAfAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-10-15T09:56:03.681Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

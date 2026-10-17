@@ -14,6 +14,11 @@ export const COMPLETIONS_DEFAULT_RANGE_DAYS = 366;
 
 export const HABIT_STATUSES = ["active", "archived", "all"] as const;
 
+export const CAPSULE_STATUSES = ["pending", "delivered", "failed"] as const;
+
+export const 
+
+
 // Calendar date (YYYY-MM-DD), rejecting impossible dates like 2026-13-45.
 export const dateStringSchema = z.iso.date("Date must be a valid YYYY-MM-DD date");
 
